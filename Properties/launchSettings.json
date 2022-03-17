@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Un1ver5e.Bot.III": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
