@@ -13,133 +13,122 @@ namespace Un1ver5e.Bot
     /// </summary>
     public static class Database
     {
-        /// <summary>
-        /// Adds a Discord Token to the Database
-        /// </summary>
-        /// <param name="token"></param>
-        public static void AddToken(string token)
+        public static class Tokens
         {
-            using SqliteConnection con = new("DataSource = DB.db3");
+            /// <summary>
+            /// Adds a Discord Token to the Database
+            /// </summary>
+            /// <param name="token"></param>
+            public static void AddToken(string token)
             {
-                con.Open();
-                SqliteCommand cmd = new()
+                using SqliteConnection con = new("DataSource = DB.db3");
                 {
-                    Connection = con,
-                    CommandText = $"INSERT INTO Tokens VALUES" +
-                    $"('{DateTime.Now.AsISO8601()}', '{token}')"
-                };
+                    con.Open();
+                    SqliteCommand cmd = new()
+                    {
+                        Connection = con,
+                        CommandText = $"INSERT INTO Tokens(Token) VALUES" +
+                        $"('{token}')"
+                    };
 
-                cmd.ExecuteNonQuery();
+                    cmd.ExecuteNonQuery();
+                }
             }
-        }
-        /// <summary>
-        /// Gets the latest Discord Token from the Database
-        /// </summary>
-        /// <returns></returns>
-        public static string GetToken()
-        {
-            using SqliteConnection con = new("DataSource = DB.db3");
+            /// <summary>
+            /// Gets the latest Discord Token from the Database
+            /// </summary>
+            /// <returns></returns>
+            public static string GetToken()
             {
-                con.Open();
-                SqliteCommand cmd = new()
+                using SqliteConnection con = new("DataSource = DB.db3");
                 {
-                    Connection = con,
-                    CommandText =
-                    "SELECT Token " +
-                    "FROM TOKENS " +
-                    "ORDER BY Time DESC " +
-                    "LIMIT 1"
-                };
+                    con.Open();
+                    SqliteCommand cmd = new()
+                    {
+                        Connection = con,
+                        CommandText =
+                        "SELECT Token " +
+                        "FROM TOKENS " +
+                        "ORDER BY ID DESC " +
+                        "LIMIT 1"
+                    };
 
-                var result = cmd.ExecuteScalar();
+                    var result = cmd.ExecuteScalar();
 
 #pragma warning disable CS8603 // Возможно, возврат ссылки, допускающей значение NULL.
-                return result as string;
+                    return result as string;
 #pragma warning restore CS8603 // Возможно, возврат ссылки, допускающей значение NULL.
+                }
             }
         }
 
-
-        /// <summary>
-        /// Adds this channelID to the list of Feed Channels.
-        /// </summary>
-        /// <param name="channelID">The Channel ID</param>
-        /// <param name="guildID">The Guild ID</param>
-        public static void AddFeedChannel(ulong channelID, ulong? guildID = null)
+        public static class Feeds
         {
-            string guildIDstring =
-                guildID.HasValue ?
-                guildID.Value.ToString() :
-                "null";
-
-            using SqliteConnection con = new("DataSource = DB.db3");
-            con.Open();
-            SqliteCommand cmd = new()
+            /// <summary>
+            /// Adds this channelID to the list of Feed Channels.
+            /// </summary>
+            /// <param name="channelID">The Channel ID</param>
+            /// <param name="guildID">The Guild ID</param>
+            public static void AddFeedChannel(ulong channelID)
             {
-                Connection = con,
-                CommandText = $"INSERT INTO Feeds VALUES" +
-                $"('{guildIDstring}', '{channelID}')"
-            };
-
-            cmd.ExecuteNonQuery();
-        }
-        /// <summary>
-        /// Adds this channelID to the list of Feed Channels.
-        /// </summary>
-        /// <param name="channelID">The Channel ID</param>
-        /// <param name="guildID">The Guild ID</param>
-        public static void RemoveFeedChannel(ulong channelID)
-        {
-            using SqliteConnection con = new("DataSource = DB.db3");
-            {
+                using SqliteConnection con = new("DataSource = DB.db3");
                 con.Open();
                 SqliteCommand cmd = new()
                 {
                     Connection = con,
-                    CommandText = $"REMOVE FROM Feeds " +
-                    $"WHERE ChannelID = {channelID}"
+                    CommandText = $"INSERT INTO Feeds(ChannelID) VALUES" +
+                    $"('{channelID}')"
                 };
 
                 cmd.ExecuteNonQuery();
             }
-        }
-        /// <summary>
-        /// Gets all feed channel IDs
-        /// </summary>
-        /// <returns></returns>
-        public static IEnumerable<ulong> GetFeedChannels()
-        {
-            using SqliteConnection con = new("DataSource = DB.db3");
+            /// <summary>
+            /// Adds this channelID to the list of Feed Channels.
+            /// </summary>
+            /// <param name="channelID">The Channel ID</param>
+            /// <param name="guildID">The Guild ID</param>
+            public static void RemoveFeedChannel(ulong channelID)
             {
-                con.Open();
-                SqliteCommand cmd = new()
+                using SqliteConnection con = new("DataSource = DB.db3");
                 {
-                    Connection = con,
-                    CommandText =
-                    "SELECT * " +
-                    "FROM Feeds "
-                };
+                    con.Open();
+                    SqliteCommand cmd = new()
+                    {
+                        Connection = con,
+                        CommandText = $"REMOVE FROM Feeds " +
+                        $"WHERE ChannelID = {channelID}"
+                    };
 
-                var result = cmd.ExecuteReader();
-
-                List<ulong> ids = new List<ulong>();
-                while (result.Read())
-                {
-                    ids.Add((ulong)result.GetInt64("ChannelID"));
+                    cmd.ExecuteNonQuery();
                 }
-                return ids;
             }
-        }
+            /// <summary>
+            /// Gets all feed channel IDs
+            /// </summary>
+            /// <returns></returns>
+            public static IEnumerable<ulong> GetFeedChannels()
+            {
+                using SqliteConnection con = new("DataSource = DB.db3");
+                {
+                    con.Open();
+                    SqliteCommand cmd = new()
+                    {
+                        Connection = con,
+                        CommandText =
+                        "SELECT * " +
+                        "FROM Feeds "
+                    };
 
+                    var result = cmd.ExecuteReader();
 
-
-        public static void AddBoardGameChannel(ulong guildid, ulong channelid)
-        {
-
-        }
-        public static ulong GetGuildBoardGamesChannel(ulong guildid)
-        {
-
+                    List<ulong> ids = new List<ulong>();
+                    while (result.Read())
+                    {
+                        ids.Add((ulong)result.GetInt64("ChannelID"));
+                    }
+                    return ids;
+                }
+            }
         }
 
         /// <summary>
@@ -168,6 +157,9 @@ namespace Un1ver5e.Bot
 #pragma warning restore CS8603 // Возможно, возврат ссылки, допускающей значение NULL.
             }
         }
+
+
+
 
 
         /// <summary>
@@ -236,6 +228,61 @@ namespace Un1ver5e.Bot
             SqliteConnection.ClearAllPools();
             return File.OpenRead(Extensions.AppFolderPath + "DB.db3");
         }
+
+        /// <summary>
+        /// Deletes all current tables and creates new ones.
+        /// </summary>
+        public static void RestoreDatabase()
+        {
+            Serilog.Log.Logger.Warning("Database drop and restoration initiated!");
+            using SqliteConnection con = new("DataSource = DB.db3");
+            {
+                con.Open();
+                
+                foreach (string commandText in _createTableCommands)
+                {
+                    SqliteCommand command = new SqliteCommand()
+                    {
+                        Connection = con,
+                        CommandText = commandText
+                    };
+                    command.ExecuteNonQuery();
+                }
+            }
+            Serilog.Log.Logger.Warning("Database dropped and restored!");
+        }
+
+        /// <summary>
+        /// Gets all the table's DROP and CREATE commands.
+        /// </summary>
+        private static string[] _createTableCommands => new string[]
+        {
+            //SPLASHES
+            "DROP TABLE IF EXISTS [Splashes];" +
+            "CREATE TABLE [Splashes] " +
+            "(" +
+            "[ID] INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "[Splash] TEXT NOT NULL" +
+            ");" + 
+            "INSERT INTO [Splashes](Splash) VALUES('MO is here!')",
+
+            //TOKENS
+            "DROP TABLE IF EXISTS [Tokens];" +
+            "CREATE TABLE [Tokens] " +
+            "(" +
+            "[ID] INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "[Token] TEXT NOT NULL" +
+            ");" +
+            "INSERT INTO [Tokens](Token) VALUES('Sample Token')",
+
+            //FEEDS
+            "DROP TABLE IF EXISTS [Feeds];" +
+            "CREATE TABLE [Feeds] " +
+            "(" +
+            "[ID] INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "[ChannelID] UNSIGNED BIG INTEGER NOT NULL UNIQUE" +
+            ");",
+        };
 
         /// <summary>
         /// Formats DateTime according to ISO-8601 standart.

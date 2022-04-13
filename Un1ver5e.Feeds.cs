@@ -14,7 +14,7 @@ namespace Un1ver5e.Bot
     {
         public static async Task SendMessageToFeeds(DiscordUser author, string message)
         {
-            foreach (ulong id in Database.GetFeedChannels())
+            foreach (ulong id in Database.Feeds.GetFeedChannels())
             {
                 await (await Program.MainDiscordClient.GetChannelAsync(id)).SendMessageAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate)
                     .WithDescription(message)
@@ -24,12 +24,12 @@ namespace Un1ver5e.Bot
 
         public static void EnableFeed(DiscordChannel channel)
         {
-            Database.AddFeedChannel(channel.Id, channel.GuildId);
+            Database.Feeds.AddFeedChannel(channel.Id);
         }
 
         public static void DisableFeed(DiscordChannel channel)
         {
-            Database.RemoveFeedChannel(channel.Id);
+            Database.Feeds.RemoveFeedChannel(channel.Id);
         }
     }
 }

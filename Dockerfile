@@ -6,7 +6,6 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:6.0-focal-arm64v8 AS build
 WORKDIR /src
 COPY ["Un1ver5e.Bot.III.csproj", "."]
-COPY ["NuGet.Config", ""]
 RUN dotnet restore "./Un1ver5e.Bot.III.csproj" -r linux-arm64
 COPY . .
 WORKDIR "/src/."

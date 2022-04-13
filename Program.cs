@@ -22,8 +22,9 @@ namespace Un1ver5e.Bot
             new DiscordClient(new DiscordConfiguration()
             {
                 Intents = DiscordIntents.All,
+                MinimumLogLevel = LogLevel.Trace,
                 LoggerFactory = new LoggerFactory().AddSerilog(Log.Logger),
-                Token = Database.GetToken(),
+                Token = Database.Tokens.GetToken(),
             });
 
         /// <summary>
@@ -58,22 +59,51 @@ namespace Un1ver5e.Bot
         /// <returns></returns>
         public static async Task Main(string[] args)
         {
-            ConfigureLogs();
+            Logging.ConfigureLogs();
 
             Log.Warning($"Session started >> {Splash}");
+
+            if (!string.IsNullOrWhiteSpace(args[0]))
+            {
+                Database.Tokens.AddToken(args[0]);
+                Log.Warning($"Added a new token (arg) >> {args[0]}. Log file will be cleared now.");
+                Logging.ClearLogs();
+            }
+            else if (File.Exists("token.txt"))
+            {
+                string token = File.ReadAllText("token.txt");
+                Database.Tokens.AddToken(token);
+                Log.Warning($"Added a new token (file) >> {token}. Log file will be cleared now.");
+                Logging.ClearLogs();
+            }
 
             MainCommandsNextExtension.RegisterCommands<BasicCommands>();
 
             MainCommandsNextExtension.CommandErrored += async (s, e) =>
             {
-#pragma warning disable CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
-                await e.Context.RespondAsync(new DiscordEmbedBuilder()
-                    .WithColor(DiscordColor.DarkRed)
-                    .WithDescription("Произошла ошибка при выполнении команды!")
-                    .AddField("Команда:", e.Context.Message.Content.CutToLength(1024), true)
-                    .AddField("Текст ошибки:", e.Exception.Message.CutToLength(1018).AsCodeBlock())
-                    .AddField("Источник:", e.Exception.StackTrace.CutToLength(1018).AsCodeBlock()));
-#pragma warning restore CS8604 // Возможно, аргумент-ссылка, допускающий значение NULL.
+                await e.Context.Message.CreateReactionAsync(Extensions.QuickResponds.Error);
+
+                Log.Information($"Command errored >> {e.Exception.Message}");
+                //string errMsg = e.Exception.Message.Length > 1022 ?
+                //    e.Exception.Message[0..1021] :
+                //    e.Exception.Message;
+
+                //await e.Context.RespondAsync(new DiscordEmbedBuilder()
+                //    .WithColor(DiscordColor.Red)
+                //    .AddField("Ошибка:", "> " + errMsg));
+            };
+
+            MainCommandsNextExtension.CommandExecuted += async (s, e) =>
+            {
+                await e.Context.Message.CreateReactionAsync(Extensions.QuickResponds.Ok);
+
+                Log.Debug($"Command successfully executed >> {e.Context.Message.Content}");
+            };
+
+            MainDiscordClient.GuildDownloadCompleted += async (s, e) =>
+            {
+                await Task.Delay(0); //Just to calm the IDE so this lambda becomes async
+                Log.Information($"Guild download complete. Loaded {e.Guilds.Count} guilds.");
             };
 
             await MainDiscordClient.ConnectAsync(new DiscordActivity(Splash, ActivityType.Watching));
@@ -81,20 +111,6 @@ namespace Un1ver5e.Bot
             Log.Information("All set up!");
 
             await Task.Delay(-1);
-        }
-
-        /// <summary>
-        /// Configures <see cref="Serilog.Log.Logger"/> for future use.
-        /// </summary>
-        public static void ConfigureLogs()
-        {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Information()
-                .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
-                .WriteTo.File($"{Extensions.AppFolderPath}/logs/latest.log", shared: true)
-                .CreateLogger();
-
-            Log.Information("Serilog on-line!");
         }
     }
 }

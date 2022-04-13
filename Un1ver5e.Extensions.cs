@@ -18,6 +18,11 @@ namespace Un1ver5e.Bot
         public static readonly Random Random = new();
 
         /// <summary>
+        /// The ID of "MO Hub" guild.
+        /// </summary>
+        public static readonly ulong HubGuildID = 956094613536505866;
+
+        /// <summary>
         /// The root folder for the project. Contains the '/' symbol at the end.
         /// </summary>
         public static readonly string AppFolderPath = Environment.CurrentDirectory + "/";
@@ -41,7 +46,7 @@ namespace Un1ver5e.Bot
         /// <summary>
         /// The default-colored embed, using this is recommended.
         /// </summary>
-        public static readonly DiscordEmbed EmbedTemplate = new DiscordEmbedBuilder().WithColor(DiscordColor.Azure).Build();
+        public static readonly DiscordEmbed EmbedTemplate = new DiscordEmbedBuilder().WithColor(0x3aebca).Build();
 
         /// <summary>
         /// Formats string as a Discord Codeblock
@@ -51,11 +56,21 @@ namespace Un1ver5e.Bot
         public static string AsCodeBlock(this string original) => "```" + original + "```";
 
         /// <summary>
-        /// Cuts the string to the specified length.
+        /// Contains <see cref="DiscordEmoji"/>s for quick responds.
         /// </summary>
-        /// <param name="original"></param>
-        /// <param name="length"></param>
-        /// <returns></returns>
-        public static string CutToLength(this string original, int length) => original.Length > length ? original.Substring(0, length) : original;
+        public static class QuickResponds
+        {
+            public static readonly DiscordEmoji Ok = DiscordEmoji.FromName(Program.MainDiscordClient, ":mo_ok:", true);
+            public static readonly DiscordEmoji Error = DiscordEmoji.FromName(Program.MainDiscordClient, ":mo_error:", true);
+        }
+
+        public static int GetPercentage(int current, int max) => current * 100 / max;
+
+        public static string GetPercentageBar(int percentage)
+        {
+            int filled = percentage / 10;
+
+            return new string('■', filled) + new string('□', 10 - filled);
+        }
     }
 }

@@ -4,6 +4,7 @@ using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,7 +15,7 @@ namespace Un1ver5e.Bot
     /// </summary>
     public class BasicCommands : BaseCommandModule
     {
-        [Command("Avatar"), Description("Выдает ссылку на аватар нужного юзера."), 
+        [Command("avatar"), Description("Выдает ссылку на аватар нужного юзера."),
             RequireGuild()]
         public async Task GetAvatar(CommandContext ctx, DiscordMember mem)
         {
@@ -22,14 +23,14 @@ namespace Un1ver5e.Bot
             await ctx.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate).WithImageUrl(avatarUrl).AddField($"Ссылка на аватар `{mem.DisplayName}`:", avatarUrl));
         }
 
-        [Command("Roll"), Description("Выдает случайное число от 1 до 100.")
+        [Command("roll"), Description("Выдает случайное число от 1 до 100.")
             ]
         public async Task Roll(CommandContext ctx)
         {
             await ctx.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate).AddField("Результат вашего ролла [1-100]:", "🎲 **" + Extensions.Random.Next(1, 101).ToString() + "**"));
         }
 
-        [Command("Rate"), Description("Оценивает сообщение, на которое вызван ответ."),
+        [Command("rate"), Description("Оценивает сообщение, на которое вызван ответ."),
             RequireReferencedMessage()]
         public async Task Rate(CommandContext ctx)
         {
@@ -48,7 +49,7 @@ namespace Un1ver5e.Bot
                 9 => ":rage: Кринж",
                 10 => ":banana: ок",
                 _ => throw new NotImplementedException()
-            };                
+            };
 
             await ctx.Message.ReferencedMessage.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate)
                 .AddField("Экспертная оценка от бота :sunglasses: ", rateMessage)
@@ -58,13 +59,53 @@ namespace Un1ver5e.Bot
 
 
 
-        [Command("Sqlnq"), RequireOwner()]
+        [Group("generate"), Description("Команды для генерации чего-то."), Aliases("g")]
+        public class GenerateCommands : BaseCommandModule
+        {
+            [Command("cat"), Description("Случайные несуществующие коты!")
+            ]
+            public async Task Cat(CommandContext ctx)
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    Stream pic = await client.GetStreamAsync("https://thiscatdoesnotexist.com/");
+                    await ctx.RespondAsync(new DiscordMessageBuilder().WithFile("cat.jpg", pic));
+                }
+            }
+
+            [Command("horse"), Description("Случайные несуществующие лошади!")
+            ]
+            public async Task Person(CommandContext ctx)
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    Stream pic = await client.GetStreamAsync("https://thishorsedoesnotexist.com/");
+                    await ctx.RespondAsync(new DiscordMessageBuilder().WithFile("horse.jpg", pic));
+                }
+            }
+
+            [Command("art"), Description("Искусство!")
+            ]
+            public async Task Art(CommandContext ctx)
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    Stream pic = await client.GetStreamAsync("https://thisartworkdoesnotexist.com/");
+                    await ctx.RespondAsync(new DiscordMessageBuilder().WithFile("art.jpg", pic));
+                }
+            }
+        }
+
+
+
+
+        [Command("sqlnq"), RequireOwner()]
         public async Task SqlNonQuery(CommandContext ctx, [RemainingText()] string query)
         {
             await ctx.RespondAsync(Database.ExecuteSqlNonQuery(query).AsCodeBlock());
         }
 
-        [Command("Sqls"), RequireOwner()]
+        [Command("sqls"), RequireOwner()]
         public async Task SqlScalar(CommandContext ctx, [RemainingText()] string query)
         {
             await ctx.RespondAsync(Database.ExecuteSqlScalar(query).AsCodeBlock());
@@ -84,26 +125,69 @@ namespace Un1ver5e.Bot
 
 
 
-        [Command("broadcast"), RequireOwner()]
-        public async Task Broadcast(CommandContext ctx, [RemainingText()] string msg)
+        [Group("feed"), Description("Команды для работы с \"лентами\".")]
+        public class FeedCommands : BaseCommandModule
         {
-            await Feeds.SendMessageToFeeds(ctx.Message.Author, msg);
+            [GroupCommand(), Description("Пишет данное сообщение в ленты."),
+                RequireOwner()]
+            public async Task Broadcast(CommandContext ctx, [RemainingText(), Description("Сообщение")] string message)
+            {
+                await Feeds.SendMessageToFeeds(ctx.Message.Author, message);
+            }
+
+            [Command("enable"), Description("Назначает данный канал лентой."),
+                RequirePermissions(DSharpPlus.Permissions.Administrator)]
+            public async Task Enablefeed(CommandContext ctx)
+            {
+                Feeds.EnableFeed(ctx.Channel);
+                await ctx.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate).WithDescription($"Назначил {ctx.Channel.Mention} лентой."));
+            }
+
+            [Command("disable"), Description("Убирает данный канал из списка лент."),
+                RequirePermissions(DSharpPlus.Permissions.Administrator)]
+            public async Task Disablefeed(CommandContext ctx)
+            {
+                Feeds.DisableFeed(ctx.Channel);
+                await ctx.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate).WithDescription($"Убрал {ctx.Channel.Mention} из списка лент."));
+            }
         }
 
-        [Command("enablefeed"), RequireOwner()]
-        public async Task Enablefeed(CommandContext ctx)
+        [Group("logs"), Description("Команды для работы с логами.")]
+        public class LogsCommands : BaseCommandModule
         {
-            Feeds.EnableFeed(ctx.Channel);
-            await ctx.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate).WithDescription($"Назначил {ctx.Channel.Mention} новостным каналом."));
-        }
+            [Command("show"), Aliases("get"), RequireOwner()]
+            public async Task GetLogs(CommandContext ctx)
+            {
+                using (var stream = File.Open($"{Extensions.AppFolderPath}/logs/latest.log", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    await ctx.RespondAsync(new DiscordMessageBuilder().WithFile(stream.Name, stream));
+                }
+            }
 
-        [Command("disablefeed"), RequireOwner()]
-        public async Task Disablefeed(CommandContext ctx)
-        {
-            Feeds.DisableFeed(ctx.Channel);
-            await ctx.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate).WithDescription($"Убрал {ctx.Channel.Mention} из списка новостных каналов."));
-        }
+            [Command("drop"), Aliases("clear"), RequireOwner()]
+            public async Task ClearLogs(CommandContext ctx)
+            {
+                Logging.ClearLogs();
+            }
 
+            [Command("setlevel"), RequireOwner()]
+            public async Task SetLogLevel(CommandContext ctx, string level)
+            {
+                Serilog.Events.LogEventLevel actualLevel = level.ToLower() switch
+                {
+                    "verbose" => Serilog.Events.LogEventLevel.Verbose,
+                    "debug" => Serilog.Events.LogEventLevel.Debug,
+                    "info" => Serilog.Events.LogEventLevel.Information,
+                    "information" => Serilog.Events.LogEventLevel.Information,
+                    "warn" => Serilog.Events.LogEventLevel.Warning,
+                    "warning" => Serilog.Events.LogEventLevel.Warning,
+                    "error" => Serilog.Events.LogEventLevel.Error,
+                    _ => throw new ArgumentException("Недопустимый уровень логгирования.")
+                };
+
+                Logging.SetLogLevel(actualLevel);
+            }
+        }
 
 
 
@@ -117,24 +201,16 @@ namespace Un1ver5e.Bot
         }
 
 
-
-
-        [Command("getlogs"), RequireOwner()]
-        public async Task GetLogs(CommandContext ctx)
+        [Command("enc"), RequireOwner()]
+        public async Task Test(CommandContext ctx, [RemainingText] string msg)
         {
-            string logs;
+            string enc = new string(msg
+                .Where(c => char.IsLetter(c))
+                .Select(
+                c => (char)(c ^ ('\u00aa' + msg.Length % 16)))
+                .ToArray());
 
-            using (var stream = File.Open($"{Extensions.AppFolderPath}/logs/latest.log", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                byte[] buffer = new byte[stream.Length];
-                stream.Read(buffer, 0, (int)stream.Length);
-                logs = Encoding.UTF8.GetString(buffer);
-            }
-
-            await Program.MainInteractivityExtension.SendPaginatedMessageAsync(
-                ctx.Channel,
-                ctx.User,
-                Program.MainInteractivityExtension.GeneratePagesInContent(logs));
+            await ctx.RespondAsync(enc);
         }
     }
 
