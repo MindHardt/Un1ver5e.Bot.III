@@ -35,12 +35,12 @@ namespace Un1ver5e.Bot
             if (percentage == 0) return new string('□', barCount);
             if (percentage >= 100) return new string('■', barCount);
 
-            int filled = (percentage / barCount) - 1;
+            int filled = (percentage / barCount) - 2;
 
             return string.Join(string.Empty,
                 "■",
-                new string('■', filled),
-                new string('□', barCount - filled),
+                new string('■', Math.Max(filled, 0)),
+                new string('□', Math.Max(barCount - filled, 0)),
                 "□"
                 );
         }
