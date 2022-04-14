@@ -62,15 +62,9 @@ namespace Un1ver5e.Bot
         {
             public static readonly DiscordEmoji Ok = DiscordEmoji.FromName(Program.MainDiscordClient, ":mo_ok:", true);
             public static readonly DiscordEmoji Error = DiscordEmoji.FromName(Program.MainDiscordClient, ":mo_error:", true);
+            public static readonly DiscordEmoji What = DiscordEmoji.FromName(Program.MainDiscordClient, ":mo_what:", true);
+            public static readonly DiscordEmoji NotFound = DiscordEmoji.FromName(Program.MainDiscordClient, ":mo_not_found:", true);
         }
 
-        public static int GetPercentage(int current, int max) => current * 100 / max;
-
-        public static string GetPercentageBar(int percentage)
-        {
-            int filled = percentage / 10;
-
-            return new string('■', filled) + new string('□', 10 - filled);
-        }
     }
 }

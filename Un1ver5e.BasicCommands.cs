@@ -62,38 +62,28 @@ namespace Un1ver5e.Bot
         [Group("generate"), Description("Команды для генерации чего-то."), Aliases("g")]
         public class GenerateCommands : BaseCommandModule
         {
-            [Command("cat"), Description("Случайные несуществующие коты!")
-            ]
-            public async Task Cat(CommandContext ctx)
+            private async Task SendFileByUrlWithSource(DiscordMessage reference, string url)
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    Stream pic = await client.GetStreamAsync("https://thiscatdoesnotexist.com/");
-                    await ctx.RespondAsync(new DiscordMessageBuilder().WithFile("cat.jpg", pic));
+                    Stream pic = await client.GetStreamAsync(url);
+                    await reference.RespondAsync(new DiscordMessageBuilder()
+                        .WithFile($"{url}.jpg", pic)
+                        .WithContent($"||Источник: {url}||")); ;
                 }
             }
+
+            [Command("cat"), Description("Случайные несуществующие коты!")
+            ]
+            public async Task Cat(CommandContext ctx) => await SendFileByUrlWithSource(ctx.Message, "https://thiscatdoesnotexist.com/");
 
             [Command("horse"), Description("Случайные несуществующие лошади!")
             ]
-            public async Task Person(CommandContext ctx)
-            {
-                using (HttpClient client = new HttpClient())
-                {
-                    Stream pic = await client.GetStreamAsync("https://thishorsedoesnotexist.com/");
-                    await ctx.RespondAsync(new DiscordMessageBuilder().WithFile("horse.jpg", pic));
-                }
-            }
+            public async Task Horse(CommandContext ctx) => await SendFileByUrlWithSource(ctx.Message, "https://thishorsedoesnotexist.com/");
 
             [Command("art"), Description("Искусство!")
             ]
-            public async Task Art(CommandContext ctx)
-            {
-                using (HttpClient client = new HttpClient())
-                {
-                    Stream pic = await client.GetStreamAsync("https://thisartworkdoesnotexist.com/");
-                    await ctx.RespondAsync(new DiscordMessageBuilder().WithFile("art.jpg", pic));
-                }
-            }
+            public async Task Art(CommandContext ctx)            => await SendFileByUrlWithSource(ctx.Message, "https://thisartworkdoesnotexist.com/");
         }
 
 
@@ -191,6 +181,42 @@ namespace Un1ver5e.Bot
 
 
 
+        [Command("status"), Description("Состояние бота.")]
+        public async Task Status(CommandContext ctx)
+        {
+            int memAct = (int)SystemInfo.GetActualMemoryMegaBytes();
+            int memVir = (int)SystemInfo.GetVirtualMemoryMegaBytes();
+
+            int memPer = SystemInfo.GetPercentage(memAct, memVir);
+            string memBar = SystemInfo.GetPercentageBar(memPer, 25);
+
+            string memoryLine =
+                $"{memAct}/{memVir}MBs. ({memPer}%)\n{memBar}";
+
+            DiscordEmbedBuilder deb = new DiscordEmbedBuilder(Extensions.EmbedTemplate)
+                .WithDescription($"Состояние бота на момент {DateTime.Now}")
+                .AddField("Используемая память:", memoryLine)
+                .AddField("Пинг:", $"{SystemInfo.GetPing()}мс.")
+                .AddField("Бот запущен уже:", $"{DateTime.Now - Program.LaunchTime}.");
+
+            await ctx.RespondAsync(deb);
+        }
+
+
+
+        [Command("whyerror"), Aliases("why", "details"), Description("Дает подробную информацию о последней ошибке.")]
+        public async Task WhyError(CommandContext ctx)
+        {
+            Exception ex = Features.ErrorResponds.GetException(ctx.User.Id);
+
+            await Program.MainInteractivityExtension.SendPaginatedMessageAsync(
+                ctx.Channel,
+                ctx.User,
+                Program.MainInteractivityExtension.GeneratePagesInEmbed($"[{ex.Message}]\n>>{ex.StackTrace}>>", DSharpPlus.Interactivity.Enums.SplitType.Character, new DiscordEmbedBuilder(Extensions.EmbedTemplate))
+                );
+        }
+
+
         [Command("shutdown"), RequireOwner()]
         public async Task Shutdown(CommandContext ctx, [RemainingText()] string message)
         {
@@ -199,6 +225,7 @@ namespace Un1ver5e.Bot
             await Program.MainDiscordClient.DisconnectAsync();
             Environment.Exit(0);
         }
+
 
 
         [Command("enc"), RequireOwner()]

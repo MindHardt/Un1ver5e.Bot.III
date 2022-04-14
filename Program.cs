@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Un1ver5e.Bot
 {
@@ -53,6 +54,11 @@ namespace Un1ver5e.Bot
         public static readonly string Splash = Database.GetSplash();
 
         /// <summary>
+        /// The time bot launched.
+        /// </summary>
+        public static DateTime LaunchTime { get; private set; }
+
+        /// <summary>
         /// The async Main method.
         /// </summary>
         /// <param name="args"></param>
@@ -63,7 +69,7 @@ namespace Un1ver5e.Bot
 
             Log.Warning($"Session started >> {Splash}");
 
-            if (!string.IsNullOrWhiteSpace(args[0]))
+            if (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))
             {
                 Database.Tokens.AddToken(args[0]);
                 Log.Warning($"Added a new token (arg) >> {args[0]}. Log file will be cleared now.");
@@ -75,22 +81,23 @@ namespace Un1ver5e.Bot
                 Database.Tokens.AddToken(token);
                 Log.Warning($"Added a new token (file) >> {token}. Log file will be cleared now.");
                 Logging.ClearLogs();
+                File.Delete("token.txt");
             }
 
             MainCommandsNextExtension.RegisterCommands<BasicCommands>();
 
             MainCommandsNextExtension.CommandErrored += async (s, e) =>
             {
-                await e.Context.Message.CreateReactionAsync(Extensions.QuickResponds.Error);
+                DiscordEmoji respond =
+                    e.Exception is DSharpPlus.CommandsNext.Exceptions.CommandNotFoundException ||
+                    e.Exception is DSharpPlus.CommandsNext.Exceptions.InvalidOverloadException ?
+                    Extensions.QuickResponds.What : Extensions.QuickResponds.Error;
+
+                await e.Context.Message.CreateReactionAsync(respond);
+
+                Features.ErrorResponds.AddException(e.Context.User.Id, e.Exception);
 
                 Log.Information($"Command errored >> {e.Exception.Message}");
-                //string errMsg = e.Exception.Message.Length > 1022 ?
-                //    e.Exception.Message[0..1021] :
-                //    e.Exception.Message;
-
-                //await e.Context.RespondAsync(new DiscordEmbedBuilder()
-                //    .WithColor(DiscordColor.Red)
-                //    .AddField("Ошибка:", "> " + errMsg));
             };
 
             MainCommandsNextExtension.CommandExecuted += async (s, e) =>
@@ -109,6 +116,7 @@ namespace Un1ver5e.Bot
             await MainDiscordClient.ConnectAsync(new DiscordActivity(Splash, ActivityType.Watching));
 
             Log.Information("All set up!");
+            LaunchTime = DateTime.Now;
 
             await Task.Delay(-1);
         }
