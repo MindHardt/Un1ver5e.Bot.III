@@ -3,6 +3,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -30,6 +31,13 @@ namespace Un1ver5e.Bot
             await ctx.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate).AddField("Результат вашего ролла [1-100]:", "🎲 **" + Extensions.Random.Next(1, 101).ToString() + "**"));
         }
 
+        [Command("random"), Aliases("rnd"), Description("Выдает случайное число между данными включительно.")
+            ]
+        public async Task Random(CommandContext ctx, int from, int to)
+        {
+            await ctx.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate).AddField($"Результат вашего ролла [{from}-{to}]:", "🎲 **" + Extensions.Random.Next(from, to + 1).ToString() + "**"));
+        }
+
         [Command("rate"), Description("Оценивает сообщение, на которое вызван ответ."),
             RequireReferencedMessage()]
         public async Task Rate(CommandContext ctx)
@@ -53,7 +61,7 @@ namespace Un1ver5e.Bot
 
             await ctx.Message.ReferencedMessage.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate)
                 .AddField("Экспертная оценка от бота :sunglasses: ", rateMessage)
-                .WithFooter("Все оценки бота случайны, не принимайте близко к сердцу."));
+                .WithFooter("Все оценки бота случайны."));
         }
 
 
@@ -197,7 +205,7 @@ namespace Un1ver5e.Bot
                 .WithDescription($"Состояние бота на момент {DateTime.Now}")
                 .AddField("Используемая память:", memoryLine)
                 .AddField("Пинг:", $"{SystemInfo.GetPing()}мс.")
-                .AddField("Бот запущен уже:", $"{DateTime.Now - Program.LaunchTime}.");
+                .AddField("Бот запущен уже:", $"{DateTime.Now - Process.GetCurrentProcess().StartTime}.");
 
             await ctx.RespondAsync(deb);
         }

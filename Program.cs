@@ -34,7 +34,7 @@ namespace Un1ver5e.Bot
         public static readonly CommandsNextExtension MainCommandsNextExtension =
             MainDiscordClient.UseCommandsNext(new CommandsNextConfiguration()
             {
-                StringPrefixes = new string[] { "mo", "мо" }
+                StringPrefixes = new string[] { "mo " }
             });
 
         /// <summary>
@@ -52,11 +52,6 @@ namespace Un1ver5e.Bot
         /// The bot's minecraft splash.
         /// </summary>
         public static readonly string Splash = Database.GetSplash();
-
-        /// <summary>
-        /// The time bot launched.
-        /// </summary>
-        public static DateTime LaunchTime { get; private set; }
 
         /// <summary>
         /// The async Main method.
@@ -116,7 +111,6 @@ namespace Un1ver5e.Bot
             await MainDiscordClient.ConnectAsync(new DiscordActivity(Splash, ActivityType.Watching));
 
             Log.Information("All set up!");
-            LaunchTime = DateTime.Now;
 
             await Task.Delay(-1);
         }
