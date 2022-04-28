@@ -16,7 +16,7 @@ namespace Un1ver5e.Bot
         {
             foreach (ulong id in Database.Feeds.GetFeedChannels())
             {
-                await (await Program.MainDiscordClient.GetChannelAsync(id)).SendMessageAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate)
+                await (await Program.DiscordClient.GetChannelAsync(id)).SendMessageAsync(new DiscordEmbedBuilder(Statics.EmbedTemplate)
                     .WithDescription(message)
                     .WithAuthor(author.Username, null, author.AvatarUrl));
             }

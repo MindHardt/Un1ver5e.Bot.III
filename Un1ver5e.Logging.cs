@@ -17,13 +17,13 @@ namespace Un1ver5e.Bot
         /// </summary>
         public static void ConfigureLogs()
         {
-            Directory.CreateDirectory(Extensions.AppFolderPath + "/logs");
+            Directory.CreateDirectory(Statics.AppFolderPath + "/logs");
 
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.ControlledBy(logSwitch)
                 .WriteTo.Console()
                 .WriteTo.File(
-                    $"{Extensions.AppFolderPath}/logs/latest.log", 
+                    $"{Statics.AppFolderPath}/logs/latest.log", 
                     shared: true, 
                     fileSizeLimitBytes: 1024)
                 .CreateLogger();
@@ -39,7 +39,7 @@ namespace Un1ver5e.Bot
             Log.Warning("Logs being cleared!");
             Log.CloseAndFlush();
 
-            File.WriteAllText($"{Extensions.AppFolderPath}/logs/latest.log", string.Empty);
+            File.WriteAllText($"{Statics.AppFolderPath}/logs/latest.log", string.Empty);
 
             ConfigureLogs();
         }

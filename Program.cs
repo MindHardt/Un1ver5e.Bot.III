@@ -17,44 +17,19 @@ namespace Un1ver5e.Bot
     public static class Program
     {
         /// <summary>
-        /// The main <see cref="DiscordClient"/> object.
+        /// The main <see cref="DSharpPlus.DiscordClient"/> object.
         /// </summary>
-        public static readonly DiscordClient MainDiscordClient =
-            new DiscordClient(new DiscordConfiguration()
+        public static readonly DiscordClient DiscordClient =
+            new(new DiscordConfiguration()
             {
                 Intents = DiscordIntents.All,
                 MinimumLogLevel = LogLevel.Trace,
                 LoggerFactory = new LoggerFactory().AddSerilog(Log.Logger),
-                Token = Database.Tokens.GetToken(),
+                Token = TokenReader.GetToken()
             });
 
         /// <summary>
-        /// The main <see cref="CommandsNextExtension"/> object.
-        /// </summary>
-        public static readonly CommandsNextExtension MainCommandsNextExtension =
-            MainDiscordClient.UseCommandsNext(new CommandsNextConfiguration()
-            {
-                StringPrefixes = new string[] { "mo " }
-            });
-
-        /// <summary>
-        /// The main <see cref="InteractivityExtension"/> object.
-        /// </summary>
-        public static readonly InteractivityExtension MainInteractivityExtension =
-            MainDiscordClient.UseInteractivity(new InteractivityConfiguration()
-            {
-                AckPaginationButtons = true,
-                PollBehaviour = DSharpPlus.Interactivity.Enums.PollBehaviour.KeepEmojis,
-                ResponseBehavior = DSharpPlus.Interactivity.Enums.InteractionResponseBehavior.Ack,
-            });
-
-        /// <summary>
-        /// The bot's minecraft splash.
-        /// </summary>
-        public static readonly string Splash = Database.GetSplash();
-
-        /// <summary>
-        /// The async Main method.
+        /// The async entry point.
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
@@ -62,31 +37,27 @@ namespace Un1ver5e.Bot
         {
             Logging.ConfigureLogs();
 
-            Log.Warning($"Session started >> {Splash}");
+            string splash = Database.GetSplash();
 
-            if (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))
+            Log.Warning($"Session started >> {splash}");
+
+            CommandsNextExtension cnext = DiscordClient.UseCommandsNext(new()
             {
-                Database.Tokens.AddToken(args[0]);
-                Log.Warning($"Added a new token (arg) >> {args[0]}. Log file will be cleared now.");
-                Logging.ClearLogs();
-            }
-            else if (File.Exists("token.txt"))
-            {
-                string token = File.ReadAllText("token.txt");
-                Database.Tokens.AddToken(token);
-                Log.Warning($"Added a new token (file) >> {token}. Log file will be cleared now.");
-                Logging.ClearLogs();
-                File.Delete("token.txt");
-            }
+#if DEBUG
+                StringPrefixes = new string[] { "mt " }
+#else
+                StringPrefixes = new string[] { "mo " }
+#endif
+            });
 
-            MainCommandsNextExtension.RegisterCommands<BasicCommands>();
+            cnext.RegisterCommands<BasicCommands>();
 
-            MainCommandsNextExtension.CommandErrored += async (s, e) =>
+            cnext.CommandErrored += async (s, e) =>
             {
                 DiscordEmoji respond =
                     e.Exception is DSharpPlus.CommandsNext.Exceptions.CommandNotFoundException ||
                     e.Exception is DSharpPlus.CommandsNext.Exceptions.InvalidOverloadException ?
-                    Extensions.QuickResponds.What : Extensions.QuickResponds.Error;
+                    Statics.QuickResponds.What : Statics.QuickResponds.Error;
 
                 await e.Context.Message.CreateReactionAsync(respond);
 
@@ -94,23 +65,32 @@ namespace Un1ver5e.Bot
 
                 Log.Information($"Command errored >> {e.Exception.Message}");
             };
-
-            MainCommandsNextExtension.CommandExecuted += async (s, e) =>
+            cnext.CommandExecuted += async (s, e) =>
             {
-                await e.Context.Message.CreateReactionAsync(Extensions.QuickResponds.Ok);
+                await e.Context.Message.CreateReactionAsync(Statics.QuickResponds.Ok);
 
                 Log.Debug($"Command successfully executed >> {e.Context.Message.Content}");
             };
 
-            MainDiscordClient.GuildDownloadCompleted += async (s, e) =>
+            Log.Information("CommandsNext set up.");
+
+            DiscordClient.UseInteractivity(new()
             {
-                await Task.Delay(0); //Just to calm the IDE so this lambda becomes async
+                AckPaginationButtons = true,
+                PollBehaviour = DSharpPlus.Interactivity.Enums.PollBehaviour.KeepEmojis,
+                ResponseBehavior = DSharpPlus.Interactivity.Enums.InteractionResponseBehavior.Ack,
+            });
+
+            Log.Information("Interactivity set up.");
+
+            DiscordClient.GuildDownloadCompleted += async (s, e) =>
+            {
                 Log.Information($"Guild download complete. Loaded {e.Guilds.Count} guilds.");
             };
 
-            await MainDiscordClient.ConnectAsync(new DiscordActivity(Splash, ActivityType.Watching));
+            await DiscordClient.ConnectAsync(new DiscordActivity(splash, ActivityType.Watching));
 
-            Log.Information("All set up!");
+            Log.Information($"{DiscordClient.CurrentUser.Username} is here.");
 
             await Task.Delay(-1);
         }

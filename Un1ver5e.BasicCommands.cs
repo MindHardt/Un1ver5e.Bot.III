@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,33 +17,35 @@ namespace Un1ver5e.Bot
     /// </summary>
     public class BasicCommands : BaseCommandModule
     {
+        public Random Random { private get; set; } = System.Random.Shared;
+        
         [Command("avatar"), Description("Выдает ссылку на аватар нужного юзера."),
             RequireGuild()]
-        public async Task GetAvatar(CommandContext ctx, DiscordMember mem)
+        public async Task GetAvatarCommand(CommandContext ctx, DiscordMember mem)
         {
             string avatarUrl = mem.GetGuildAvatarUrl(DSharpPlus.ImageFormat.Auto);
-            await ctx.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate).WithImageUrl(avatarUrl).AddField($"Ссылка на аватар `{mem.DisplayName}`:", avatarUrl));
+            await ctx.RespondAsync(new DiscordEmbedBuilder(Statics.EmbedTemplate).WithImageUrl(avatarUrl).AddField($"Ссылка на аватар `{mem.DisplayName}`:", avatarUrl));
         }
 
         [Command("roll"), Description("Выдает случайное число от 1 до 100.")
             ]
-        public async Task Roll(CommandContext ctx)
+        public async Task RollCommand(CommandContext ctx)
         {
-            await ctx.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate).AddField("Результат вашего ролла [1-100]:", "🎲 **" + Extensions.Random.Next(1, 101).ToString() + "**"));
+            await ctx.RespondAsync(new DiscordEmbedBuilder(Statics.EmbedTemplate).AddField("Результат вашего ролла [1-100]:", "🎲 **" + Random.Next(1, 101).ToString() + "**"));
         }
 
         [Command("random"), Aliases("rnd"), Description("Выдает случайное число между данными включительно.")
             ]
-        public async Task Random(CommandContext ctx, int from, int to)
+        public async Task RandomCommand(CommandContext ctx, int from, int to)
         {
-            await ctx.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate).AddField($"Результат вашего ролла [{from}-{to}]:", "🎲 **" + Extensions.Random.Next(from, to + 1).ToString() + "**"));
+            await ctx.RespondAsync(new DiscordEmbedBuilder(Statics.EmbedTemplate).AddField($"Результат вашего ролла [{from}-{to}]:", "🎲 **" + Random.Next(from, to + 1).ToString() + "**"));
         }
 
         [Command("rate"), Description("Оценивает сообщение, на которое вызван ответ."),
             RequireReferencedMessage()]
-        public async Task Rate(CommandContext ctx)
+        public async Task RateCommand(CommandContext ctx)
         {
-            int rate = Extensions.Random.Next(1, 11);
+            int rate = Random.Next(1, 11);
 
             string rateMessage = rate switch
             {
@@ -59,13 +62,43 @@ namespace Un1ver5e.Bot
                 _ => throw new NotImplementedException()
             };
 
-            await ctx.Message.ReferencedMessage.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate)
+            await ctx.Message.ReferencedMessage.RespondAsync(new DiscordEmbedBuilder(Statics.EmbedTemplate)
                 .AddField("Экспертная оценка от бота :sunglasses: ", rateMessage)
                 .WithFooter("Все оценки бота случайны."));
         }
 
+        [Group("encrypt"), Aliases("enc"), RequireOwner()]
+        public class EncryptionCommands : BaseCommandModule
+        {
+            [Command("gray"), RequireOwner()]
+            public async Task GrayEncryptionCommand(CommandContext ctx, [RemainingText] string msg)
+            {
+                await ctx.RespondAsync(GrayEncrypt(msg));
+            }
+            private string GrayEncrypt(string msg)
+            {
+                return new string(msg
+                    .Where(c => char.IsLetter(c))
+                    .Select(c => (char)(c ^ ('\u00aa'/*Just a random char that does a nice-looking encryption*/)))
+                    .ToArray());
+            }
 
+            [Command("kit"), RequireOwner()]
+            public async Task KitEncryptionCommand(CommandContext ctx, [RemainingText] string msg)
+            {
+                await ctx.RespondAsync(KitEncrypt(msg));
+            }
+            private string KitEncrypt(string msg)
+            {
+                string[] replacements = { "ka","zu","ru","ji","te","ku","su","z","ki","ki","me","ta","rin","to","mo","no","shi","ari","chi","do","lu","ri","mi","ke","hi","hi","zuk","zuk","zuk","mei","fu","na" };
 
+                return string.Join(string.Empty, msg
+                    .ToLower()
+                    .Where(c => c == ' ' || c >= 'а' && c <= 'я')
+                    .Select(c => c == ' ' ? " " : replacements[c - 'а']));
+            }
+
+        }
 
         [Group("generate"), Description("Команды для генерации чего-то."), Aliases("g")]
         public class GenerateCommands : BaseCommandModule
@@ -83,45 +116,51 @@ namespace Un1ver5e.Bot
 
             [Command("cat"), Description("Случайные несуществующие коты!")
             ]
-            public async Task Cat(CommandContext ctx) => await SendFileByUrlWithSource(ctx.Message, "https://thiscatdoesnotexist.com/");
+            public async Task GenerateCatCommand(CommandContext ctx) => await SendFileByUrlWithSource(ctx.Message, "https://thiscatdoesnotexist.com/");
 
             [Command("horse"), Description("Случайные несуществующие лошади!")
             ]
-            public async Task Horse(CommandContext ctx) => await SendFileByUrlWithSource(ctx.Message, "https://thishorsedoesnotexist.com/");
+            public async Task GenerateHorseCommand(CommandContext ctx) => await SendFileByUrlWithSource(ctx.Message, "https://thishorsedoesnotexist.com/");
 
             [Command("art"), Description("Искусство!")
             ]
-            public async Task Art(CommandContext ctx)            => await SendFileByUrlWithSource(ctx.Message, "https://thisartworkdoesnotexist.com/");
+            public async Task GenerateArtCommand(CommandContext ctx)            => await SendFileByUrlWithSource(ctx.Message, "https://thisartworkdoesnotexist.com/");
         }
 
-
-
-
-        [Command("sqlnq"), RequireOwner()]
-        public async Task SqlNonQuery(CommandContext ctx, [RemainingText()] string query)
+        [Group("db"), Description("Команды для работы с базой данных.")]
+        public class DatabaseCommand : BaseCommandModule
         {
-            await ctx.RespondAsync(Database.ExecuteSqlNonQuery(query).AsCodeBlock());
+            [GroupCommand()]
+            public async Task StatusCommand(CommandContext ctx)
+            {
+                long dbSizeBytes = Database.GetDatabaseBackup().Length;
+
+                await ctx.RespondAsync($"База данных содержит {dbSizeBytes} байт данных. ({dbSizeBytes / 1_048_576} MBs)");
+            }
+
+            [Command("sqlnq"), RequireOwner()]
+            public async Task SqlNonQueryCommand(CommandContext ctx, [RemainingText()] string query)
+            {
+                await ctx.RespondAsync(Database.ExecuteSqlNonQuery(query).AsCodeBlock());
+            }
+
+            [Command("sqls"), RequireOwner()]
+            public async Task SqlScalarCommand(CommandContext ctx, [RemainingText()] string query)
+            {
+                await ctx.RespondAsync(Database.ExecuteSqlScalar(query).AsCodeBlock());
+            }
+
+            [Command("get"), Aliases("backup"), RequireOwner(), RequireDirectMessage()]
+            public async Task GetDatabaseBackupCommand(CommandContext ctx)
+            {
+                FileStream dbfs = Database.GetDatabaseBackup();
+
+                await ctx.RespondAsync(new DiscordMessageBuilder().WithFile(
+                    $"MO_Backup_{DateTime.Now}.db3", dbfs));
+
+                dbfs.Dispose();
+            }
         }
-
-        [Command("sqls"), RequireOwner()]
-        public async Task SqlScalar(CommandContext ctx, [RemainingText()] string query)
-        {
-            await ctx.RespondAsync(Database.ExecuteSqlScalar(query).AsCodeBlock());
-        }
-
-        [Command("givemedb"), RequireOwner(), RequireDirectMessage()]
-        public async Task GetDatabaseBackup(CommandContext ctx)
-        {
-            var dbfs = Database.GetDatabaseBackup();
-
-            await ctx.RespondAsync(new DiscordMessageBuilder().WithFile(
-                $"MO_Backup_{DateTime.Now}.db3", dbfs));
-
-            dbfs.Dispose();
-        }
-
-
-
 
         [Group("feed"), Description("Команды для работы с \"лентами\".")]
         public class FeedCommands : BaseCommandModule
@@ -138,7 +177,7 @@ namespace Un1ver5e.Bot
             public async Task Enablefeed(CommandContext ctx)
             {
                 Feeds.EnableFeed(ctx.Channel);
-                await ctx.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate).WithDescription($"Назначил {ctx.Channel.Mention} лентой."));
+                await ctx.RespondAsync(new DiscordEmbedBuilder(Statics.EmbedTemplate).WithDescription($"Назначил {ctx.Channel.Mention} лентой."));
             }
 
             [Command("disable"), Description("Убирает данный канал из списка лент."),
@@ -146,7 +185,7 @@ namespace Un1ver5e.Bot
             public async Task Disablefeed(CommandContext ctx)
             {
                 Feeds.DisableFeed(ctx.Channel);
-                await ctx.RespondAsync(new DiscordEmbedBuilder(Extensions.EmbedTemplate).WithDescription($"Убрал {ctx.Channel.Mention} из списка лент."));
+                await ctx.RespondAsync(new DiscordEmbedBuilder(Statics.EmbedTemplate).WithDescription($"Убрал {ctx.Channel.Mention} из списка лент."));
             }
         }
 
@@ -156,7 +195,7 @@ namespace Un1ver5e.Bot
             [Command("show"), Aliases("get"), RequireOwner()]
             public async Task GetLogs(CommandContext ctx)
             {
-                using (var stream = File.Open($"{Extensions.AppFolderPath}/logs/latest.log", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var stream = File.Open($"{Statics.AppFolderPath}/logs/latest.log", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
                     await ctx.RespondAsync(new DiscordMessageBuilder().WithFile(stream.Name, stream));
                 }
@@ -187,8 +226,6 @@ namespace Un1ver5e.Bot
             }
         }
 
-
-
         [Command("status"), Description("Состояние бота.")]
         public async Task Status(CommandContext ctx)
         {
@@ -196,12 +233,12 @@ namespace Un1ver5e.Bot
             int memVir = (int)SystemInfo.GetVirtualMemoryMegaBytes();
 
             int memPer = SystemInfo.GetPercentage(memAct, memVir);
-            string memBar = SystemInfo.GetPercentageBar(memPer, 25);
+            string memBar = SystemInfo.GetPercentageChar(memPer);
 
             string memoryLine =
-                $"{memAct}/{memVir}MBs. ({memPer}%)\n{memBar}";
+                $"{memAct}/{memVir}MBs. ({memPer}%) {memBar}";
 
-            DiscordEmbedBuilder deb = new DiscordEmbedBuilder(Extensions.EmbedTemplate)
+            DiscordEmbedBuilder deb = new DiscordEmbedBuilder(Statics.EmbedTemplate)
                 .WithDescription($"Состояние бота на момент {DateTime.Now}")
                 .AddField("Используемая память:", memoryLine)
                 .AddField("Пинг:", $"{SystemInfo.GetPing()}мс.")
@@ -210,17 +247,17 @@ namespace Un1ver5e.Bot
             await ctx.RespondAsync(deb);
         }
 
-
-
         [Command("whyerror"), Aliases("why", "details"), Description("Дает подробную информацию о последней ошибке.")]
         public async Task WhyError(CommandContext ctx)
         {
             Exception ex = Features.ErrorResponds.GetException(ctx.User.Id);
 
-            await Program.MainInteractivityExtension.SendPaginatedMessageAsync(
+            InteractivityExtension interactivity = Program.DiscordClient.GetExtension<InteractivityExtension>();
+
+            await interactivity.SendPaginatedMessageAsync(
                 ctx.Channel,
                 ctx.User,
-                Program.MainInteractivityExtension.GeneratePagesInEmbed($"[{ex.Message}]\n>>{ex.StackTrace}>>", DSharpPlus.Interactivity.Enums.SplitType.Character, new DiscordEmbedBuilder(Extensions.EmbedTemplate))
+                interactivity.GeneratePagesInEmbed($"[{ex.Message}]\n>>{ex.StackTrace}>>", DSharpPlus.Interactivity.Enums.SplitType.Character, new DiscordEmbedBuilder(Statics.EmbedTemplate))
                 );
         }
 
@@ -229,24 +266,12 @@ namespace Un1ver5e.Bot
         public async Task Shutdown(CommandContext ctx, [RemainingText()] string message)
         {
             if (!await CommandExtensions.GetConfirmation(ctx)) return;
-            await Feeds.SendMessageToFeeds(Program.MainDiscordClient.CurrentUser, $"Выключаюсь по причине:\n> {message}");
-            await Program.MainDiscordClient.DisconnectAsync();
+            await Feeds.SendMessageToFeeds(Program.DiscordClient.CurrentUser, $"Выключаюсь по причине:\n> {message}");
+            await Program.DiscordClient.DisconnectAsync();
             Environment.Exit(0);
         }
 
-
-
-        [Command("enc"), RequireOwner()]
-        public async Task Test(CommandContext ctx, [RemainingText] string msg)
-        {
-            string enc = new string(msg
-                .Where(c => char.IsLetter(c))
-                .Select(
-                c => (char)(c ^ ('\u00aa' + msg.Length % 16)))
-                .ToArray());
-
-            await ctx.RespondAsync(enc);
-        }
+        
     }
 
     public static class CommandExtensions
@@ -257,7 +282,9 @@ namespace Un1ver5e.Bot
                 .WithContent(ctx.User.Mention + "\n" + question)
                 .AddComponents(new DiscordButtonComponent(DSharpPlus.ButtonStyle.Success, "confirm", "Да")));
 
-            var respond = await Program.MainInteractivityExtension.WaitForButtonAsync(msg, ctx.User);
+            var respond = await Program.DiscordClient
+                .GetExtension<InteractivityExtension>()
+                .WaitForButtonAsync(msg, ctx.User);
 
             await msg.DeleteAsync();
 

@@ -10,10 +10,10 @@ namespace Un1ver5e.Bot
     public static class SystemInfo
     {
         /// <summary>
-        /// Gets <see cref="Program.MainDiscordClient"/>'s WebSocket's latency.
+        /// Gets <see cref="Program.DiscordClient"/>'s WebSocket's latency.
         /// </summary>
         /// <returns></returns>
-        public static int GetPing() => Program.MainDiscordClient.Ping;
+        public static int GetPing() => Program.DiscordClient.Ping;
         /// <summary>
         /// Gets currently used memory, in Megabytes.
         /// </summary>
@@ -30,19 +30,13 @@ namespace Un1ver5e.Bot
             return Math.Max(current * 100 / max, 0);
         }
 
-        public static string GetPercentageBar(int percentage, int barCount = 10)
+        public static string GetPercentageChar(int percentage)
         {
-            if (percentage == 0) return new string('□', barCount);
-            if (percentage >= 100) return new string('■', barCount);
+            string[] symbols = { "🟩"/*green*/, "🟨"/*yellow*/, "🟧"/*orange*/, "🟥"/*red*/ };
 
-            int filled = (percentage / barCount) - 2;
+            int symbolIndex = Math.Min(4, Math.Max(0, percentage / 25));
 
-            return string.Join(string.Empty,
-                "■",
-                new string('■', Math.Max(filled, 0)),
-                new string('□', Math.Max(barCount - filled, 0)),
-                "□"
-                );
+            return symbols[symbolIndex];
         }
     }
 }

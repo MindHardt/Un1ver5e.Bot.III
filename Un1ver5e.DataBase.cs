@@ -13,55 +13,6 @@ namespace Un1ver5e.Bot
     /// </summary>
     public static class Database
     {
-        public static class Tokens
-        {
-            /// <summary>
-            /// Adds a Discord Token to the Database
-            /// </summary>
-            /// <param name="token"></param>
-            public static void AddToken(string token)
-            {
-                using SqliteConnection con = new("DataSource = DB.db3");
-                {
-                    con.Open();
-                    SqliteCommand cmd = new()
-                    {
-                        Connection = con,
-                        CommandText = $"INSERT INTO Tokens(Token) VALUES" +
-                        $"('{token}')"
-                    };
-
-                    cmd.ExecuteNonQuery();
-                }
-            }
-            /// <summary>
-            /// Gets the latest Discord Token from the Database
-            /// </summary>
-            /// <returns></returns>
-            public static string GetToken()
-            {
-                using SqliteConnection con = new("DataSource = DB.db3");
-                {
-                    con.Open();
-                    SqliteCommand cmd = new()
-                    {
-                        Connection = con,
-                        CommandText =
-                        "SELECT Token " +
-                        "FROM TOKENS " +
-                        "ORDER BY ID DESC " +
-                        "LIMIT 1"
-                    };
-
-                    var result = cmd.ExecuteScalar();
-
-#pragma warning disable CS8603 // Возможно, возврат ссылки, допускающей значение NULL.
-                    return result as string;
-#pragma warning restore CS8603 // Возможно, возврат ссылки, допускающей значение NULL.
-                }
-            }
-        }
-
         public static class Feeds
         {
             /// <summary>
@@ -158,10 +109,6 @@ namespace Un1ver5e.Bot
             }
         }
 
-
-
-
-
         /// <summary>
         /// Executes given SQL query against the database.
         /// </summary>
@@ -226,7 +173,7 @@ namespace Un1ver5e.Bot
         public static FileStream GetDatabaseBackup()
         {
             SqliteConnection.ClearAllPools();
-            return File.OpenRead(Extensions.AppFolderPath + "DB.db3");
+            return File.OpenRead(Statics.AppFolderPath + "DB.db3");
         }
 
         /// <summary>
