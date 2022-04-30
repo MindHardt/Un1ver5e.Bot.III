@@ -4,6 +4,11 @@ using System.Globalization;
 
 namespace Un1ver5e.Bot
 {
+    public class EmptyCommands : ApplicationCommandModule
+    {
+
+    }
+
     public class SlashCommands : ApplicationCommandModule
     {
         [SlashCommand("schedule", "Ура автоматическое расписание!")]

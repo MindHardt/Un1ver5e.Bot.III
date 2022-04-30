@@ -110,6 +110,9 @@ namespace Un1ver5e.Bot
             slash.RegisterCommands<SlashCommands>(956094613536505866);
             slash.RegisterCommands<SlashCommands>(751088089463521322);
 
+            //slash.RegisterCommands<EmptyCommands>(956094613536505866);
+            //slash.RegisterCommands<EmptyCommands>(751088089463521322);
+
             await DiscordClient.ConnectAsync(new DiscordActivity(splash, ActivityType.Watching));
 
             Log.Information($"{DiscordClient.CurrentUser.Username} is here.");
