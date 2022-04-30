@@ -1,11 +1,6 @@
 ﻿using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Un1ver5e.Bot
 {
@@ -17,14 +12,14 @@ namespace Un1ver5e.Bot
         /// </summary>
         public static void ConfigureLogs()
         {
-            Directory.CreateDirectory(Statics.AppFolderPath + "/logs");
+            Directory.CreateDirectory(Statics.AppPath + "/logs");
 
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.ControlledBy(logSwitch)
                 .WriteTo.Console()
                 .WriteTo.File(
-                    $"{Statics.AppFolderPath}/logs/latest.log", 
-                    shared: true, 
+                    $"{Statics.AppPath}/logs/latest.log",
+                    shared: true,
                     fileSizeLimitBytes: 1024)
                 .CreateLogger();
 
@@ -39,7 +34,7 @@ namespace Un1ver5e.Bot
             Log.Warning("Logs being cleared!");
             Log.CloseAndFlush();
 
-            File.WriteAllText($"{Statics.AppFolderPath}/logs/latest.log", string.Empty);
+            File.WriteAllText($"{Statics.AppPath}/logs/latest.log", string.Empty);
 
             ConfigureLogs();
         }

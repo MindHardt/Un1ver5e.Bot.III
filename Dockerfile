@@ -18,5 +18,4 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Un1ver5e.Bot.III.dll"]
-COPY ["DB.db3", "DB.db3"]
-COPY [".token_release.txt", ".token_release.txt"]
+COPY ["Data", "Data"]

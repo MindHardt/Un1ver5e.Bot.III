@@ -1,10 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using Microsoft.Data.Sqlite;
 using System.Data;
-using System.Data.Common;
-using Microsoft.Data.Sqlite;
-using System.Globalization;
-using System.Data.SqlTypes;
 
 namespace Un1ver5e.Bot
 {
@@ -13,6 +8,8 @@ namespace Un1ver5e.Bot
     /// </summary>
     public static class Database
     {
+        private static readonly string _path = Statics.DataFolderPath;
+        private static SqliteConnection GetNewConnection() => new($"DataSource = {_path}/DB.db3");
         public static class Feeds
         {
             /// <summary>
@@ -22,7 +19,7 @@ namespace Un1ver5e.Bot
             /// <param name="guildID">The Guild ID</param>
             public static void AddFeedChannel(ulong channelID)
             {
-                using SqliteConnection con = new("DataSource = DB.db3");
+                using SqliteConnection con = GetNewConnection();
                 con.Open();
                 SqliteCommand cmd = new()
                 {
@@ -40,7 +37,7 @@ namespace Un1ver5e.Bot
             /// <param name="guildID">The Guild ID</param>
             public static void RemoveFeedChannel(ulong channelID)
             {
-                using SqliteConnection con = new("DataSource = DB.db3");
+                using SqliteConnection con = GetNewConnection();
                 {
                     con.Open();
                     SqliteCommand cmd = new()
@@ -59,7 +56,7 @@ namespace Un1ver5e.Bot
             /// <returns></returns>
             public static IEnumerable<ulong> GetFeedChannels()
             {
-                using SqliteConnection con = new("DataSource = DB.db3");
+                using SqliteConnection con = GetNewConnection();
                 {
                     con.Open();
                     SqliteCommand cmd = new()
@@ -88,7 +85,7 @@ namespace Un1ver5e.Bot
         /// <returns></returns>
         public static string GetSplash()
         {
-            using SqliteConnection con = new("DataSource = DB.db3");
+            using SqliteConnection con = GetNewConnection();
             {
                 con.Open();
                 SqliteCommand cmd = new()
@@ -116,7 +113,7 @@ namespace Un1ver5e.Bot
         /// <returns>Number of rows affected or -1 for SELECT statements.</returns>
         public static string ExecuteSqlNonQuery(string query)
         {
-            using SqliteConnection con = new("DataSource = DB.db3");
+            using SqliteConnection con = GetNewConnection();
             {
                 con.Open();
                 SqliteCommand cmd = new()
@@ -143,7 +140,7 @@ namespace Un1ver5e.Bot
         /// <returns>The result of a query as a string.</returns>
         public static string ExecuteSqlScalar(string query)
         {
-            using SqliteConnection con = new("DataSource = DB.db3");
+            using SqliteConnection con = GetNewConnection();
             {
                 con.Open();
                 SqliteCommand cmd = new()
@@ -173,7 +170,7 @@ namespace Un1ver5e.Bot
         public static FileStream GetDatabaseBackup()
         {
             SqliteConnection.ClearAllPools();
-            return File.OpenRead(Statics.AppFolderPath + "DB.db3");
+            return File.OpenRead(_path + "/DB.db3");
         }
 
         /// <summary>
@@ -182,10 +179,10 @@ namespace Un1ver5e.Bot
         public static void RestoreDatabase()
         {
             Serilog.Log.Logger.Warning("Database drop and restoration initiated!");
-            using SqliteConnection con = new("DataSource = DB.db3");
+            using SqliteConnection con = GetNewConnection();
             {
                 con.Open();
-                
+
                 foreach (string commandText in _createTableCommands)
                 {
                     SqliteCommand command = new SqliteCommand()
@@ -210,7 +207,7 @@ namespace Un1ver5e.Bot
             "(" +
             "[ID] INTEGER PRIMARY KEY AUTOINCREMENT," +
             "[Splash] TEXT NOT NULL" +
-            ");" + 
+            ");" +
             "INSERT INTO [Splashes](Splash) VALUES('MO is here!')",
 
             //TOKENS
@@ -238,6 +235,6 @@ namespace Un1ver5e.Bot
         /// <returns></returns>
         public static string AsISO8601(this DateTime datetime) => datetime.ToString("O");
 
-        
+
     }
 }

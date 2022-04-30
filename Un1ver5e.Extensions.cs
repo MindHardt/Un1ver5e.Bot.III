@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 
 namespace Un1ver5e.Bot
 {
@@ -48,5 +45,13 @@ namespace Un1ver5e.Bot
         /// <param name="orig">The original string.</param>
         /// <returns></returns>
         public static string AsCodeBlock(this string original, string lang = "") => $"```{lang}\n{original}```";
+
+        /// <summary>
+        /// Defines whether this <see cref="DiscordUser"/> is an owner of the <paramref name="client"/>.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="client"></param>
+        /// <returns></returns>
+        public static bool IsOwnerOf(this DiscordUser user, DiscordClient client) => client.CurrentApplication.Owners.Contains(user);
     }
 }

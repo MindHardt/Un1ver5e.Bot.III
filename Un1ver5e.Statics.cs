@@ -1,10 +1,5 @@
 ﻿using DSharpPlus.Entities;
 using System.Text.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Un1ver5e.Bot
 {
@@ -19,9 +14,14 @@ namespace Un1ver5e.Bot
         public static readonly ulong HubGuildID = 956094613536505866;
 
         /// <summary>
-        /// The root folder for the project. Contains the '/' symbol at the end.
+        /// The absolute path to the app folder. Does not contain a '/' symbol at the end.
         /// </summary>
-        public static readonly string AppFolderPath = "./";
+        public static readonly string AppPath = Environment.CurrentDirectory;
+
+        /// <summary>
+        /// The absolute path to the Data folder. Does not contain a '/' symbol at the end.
+        /// </summary>
+        public static readonly string DataFolderPath = AppPath + "/Data";
 
         /// <summary>
         /// The default-colored embed, using this is recommended.
@@ -35,7 +35,7 @@ namespace Un1ver5e.Bot
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             ReadCommentHandling = JsonCommentHandling.Skip,
-            WriteIndented = true
+            WriteIndented = true,
         };
 
         /// <summary>
@@ -47,6 +47,7 @@ namespace Un1ver5e.Bot
             public static readonly DiscordEmoji Error = DiscordEmoji.FromName(Program.DiscordClient, ":mo_error:", true);
             public static readonly DiscordEmoji What = DiscordEmoji.FromName(Program.DiscordClient, ":mo_what:", true);
             public static readonly DiscordEmoji NotFound = DiscordEmoji.FromName(Program.DiscordClient, ":mo_not_found:", true);
+            public static readonly DiscordEmoji SelfDestruct = DiscordEmoji.FromName(Program.DiscordClient, ":mo_self_destruct:", true);
         }
 
     }

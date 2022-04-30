@@ -3,14 +3,10 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
 
 namespace Un1ver5e.Bot
 {
@@ -35,11 +31,22 @@ namespace Un1ver5e.Bot
         /// <returns></returns>
         public static async Task Main(string[] args)
         {
+            //Startup
             Logging.ConfigureLogs();
 
             string splash = Database.GetSplash();
 
             Log.Warning($"Session started >> {splash}");
+
+            InteractivityExtension interactivity = DiscordClient.UseInteractivity(new()
+            {
+                Timeout = TimeSpan.FromMinutes(1),
+                AckPaginationButtons = true,
+                PollBehaviour = DSharpPlus.Interactivity.Enums.PollBehaviour.KeepEmojis,
+                ResponseBehavior = DSharpPlus.Interactivity.Enums.InteractionResponseBehavior.Ack,
+            });
+
+            Log.Information("Interactivity set up.");
 
             CommandsNextExtension cnext = DiscordClient.UseCommandsNext(new()
             {
@@ -61,9 +68,28 @@ namespace Un1ver5e.Bot
 
                 await e.Context.Message.CreateReactionAsync(respond);
 
-                Features.ErrorResponds.AddException(e.Context.User.Id, e.Exception);
+                Log.Debug($"Command errored >> {e.Exception.Message}");
 
-                Log.Information($"Command errored >> {e.Exception.Message}");
+                await Task.Run(async () =>
+                {
+                    var result = await interactivity.WaitForReactionAsync(r =>
+                    r.Message == e.Context.Message &&
+                    r.Emoji == respond &&
+                    r.User == e.Context.User);
+
+                    if (result.TimedOut == false)
+                    {
+                        string exceptionMessage = e.Exception.ToString();
+
+                        MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(exceptionMessage));
+
+                        DiscordMessageBuilder dmb = new DiscordMessageBuilder()
+                            .WithContent("Текст вашей ошибки:")
+                            .WithFile("error.txt", ms);
+
+                        await e.Context.RespondAsync(dmb);
+                    }
+                });
             };
             cnext.CommandExecuted += async (s, e) =>
             {
@@ -74,19 +100,15 @@ namespace Un1ver5e.Bot
 
             Log.Information("CommandsNext set up.");
 
-            DiscordClient.UseInteractivity(new()
-            {
-                AckPaginationButtons = true,
-                PollBehaviour = DSharpPlus.Interactivity.Enums.PollBehaviour.KeepEmojis,
-                ResponseBehavior = DSharpPlus.Interactivity.Enums.InteractionResponseBehavior.Ack,
-            });
-
-            Log.Information("Interactivity set up.");
-
             DiscordClient.GuildDownloadCompleted += async (s, e) =>
             {
                 Log.Information($"Guild download complete. Loaded {e.Guilds.Count} guilds.");
             };
+
+            SlashCommandsExtension slash = DiscordClient.UseSlashCommands();
+
+            slash.RegisterCommands<SlashCommands>(956094613536505866);
+            slash.RegisterCommands<SlashCommands>(751088089463521322);
 
             await DiscordClient.ConnectAsync(new DiscordActivity(splash, ActivityType.Watching));
 

@@ -2,13 +2,7 @@
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Un1ver5e.Bot
 {
@@ -18,7 +12,7 @@ namespace Un1ver5e.Bot
     public class BasicCommands : BaseCommandModule
     {
         public Random Random { private get; set; } = System.Random.Shared;
-        
+
         [Command("avatar"), Description("Выдает ссылку на аватар нужного юзера."),
             RequireGuild()]
         public async Task GetAvatarCommand(CommandContext ctx, DiscordMember mem)
@@ -45,35 +39,51 @@ namespace Un1ver5e.Bot
             RequireReferencedMessage()]
         public async Task RateCommand(CommandContext ctx)
         {
-            int rate = Random.Next(1, 11);
-
-            string rateMessage = rate switch
+            string[] rateOptions =
             {
-                1 => ":thumbsup: Крутяк",
-                2 => ":smile: Нормально-нормально",
-                3 => ":slight_smile: Покатит",
-                4 => ":confused: Ну такое",
-                5 => ":thumbsdown: Хрень",
-                6 => ":fire: Огонь!",
-                7 => ":japanese_ogre: Ы",
-                8 => ":scream: Абалдеть!!!",
-                9 => ":rage: Кринж",
-                10 => ":banana: ок",
-                _ => throw new NotImplementedException()
+                ":thumbsup: Крутяк",
+                ":smile: Нормально-нормально",
+                ":slight_smile: Покатит",
+                ":confused: Ну такое",
+                ":thumbsdown: Хрень",
+                ":fire: Огонь!",
+                ":japanese_ogre: Ы",
+                ":scream: Абалдеть!!!",
+                ":rage: Кринж",
+                ":banana: ок",
+                ":zero: 0/10",
+                ":one: 1/10",
+                ":two: 2/10",
+                ":three: 3/10",
+                ":four: 4/10",
+                ":five: 5/10",
+                ":six: 6/10",
+                ":seven: 7/10",
+                ":eight: 8/10",
+                ":nine: 9/10",
+                ":ten: 10/10"
             };
+
+            string rateMessage = rateOptions.GetRandomElement();
 
             await ctx.Message.ReferencedMessage.RespondAsync(new DiscordEmbedBuilder(Statics.EmbedTemplate)
                 .AddField("Экспертная оценка от бота :sunglasses: ", rateMessage)
                 .WithFooter("Все оценки бота случайны."));
         }
 
-        [Group("encrypt"), Aliases("enc"), RequireOwner()]
+        [Group("encrypt"), Description("Команды для шифрования текста."), Aliases("enc"), RequireOwner]
         public class EncryptionCommands : BaseCommandModule
         {
-            [Command("gray"), RequireOwner()]
+            //Язык "серого народа"
+            [Command("gray"), RequireOwner]
             public async Task GrayEncryptionCommand(CommandContext ctx, [RemainingText] string msg)
             {
                 await ctx.RespondAsync(GrayEncrypt(msg));
+            }
+            [Command("gray"), RequireOwner, RequireReferencedMessage]
+            public async Task GrayEncryptionCommand(CommandContext ctx)
+            {
+                await ctx.RespondAsync(GrayEncrypt(ctx.Message.ReferencedMessage.Content));
             }
             private string GrayEncrypt(string msg)
             {
@@ -83,14 +93,21 @@ namespace Un1ver5e.Bot
                     .ToArray());
             }
 
-            [Command("kit"), RequireOwner()]
-            public async Task KitEncryptionCommand(CommandContext ctx, [RemainingText] string msg)
+            //Язык Кицуне
+            [Command("kit"), RequireOwner]
+            public async Task KitEncryptionCommand(CommandContext ctx, params string[] msg)
             {
-                await ctx.RespondAsync(KitEncrypt(msg));
+                await ctx.RespondAsync(KitEncrypt(string.Join(' ', msg)));
+            }
+
+            [Command("kit"), RequireOwner, RequireReferencedMessage]
+            public async Task KitEncryptionCommand(CommandContext ctx)
+            {
+                await ctx.RespondAsync(KitEncrypt(ctx.Message.ReferencedMessage.Content));
             }
             private string KitEncrypt(string msg)
             {
-                string[] replacements = { "ka","zu","ru","ji","te","ku","su","z","ki","ki","me","ta","rin","to","mo","no","shi","ari","chi","do","lu","ri","mi","ke","hi","hi","zuk","zuk","zuk","mei","fu","na" };
+                string[] replacements = { "ka", "zu", "ru", "ji", "te", "ku", "su", "z", "ki", "ki", "me", "ta", "rin", "to", "mo", "no", "shi", "ari", "chi", "do", "lu", "ri", "mi", "ke", "hi", "hi", "zuk", "zuk", "zuk", "mei", "fu", "na" };
 
                 return string.Join(string.Empty, msg
                     .ToLower()
@@ -124,7 +141,7 @@ namespace Un1ver5e.Bot
 
             [Command("art"), Description("Искусство!")
             ]
-            public async Task GenerateArtCommand(CommandContext ctx)            => await SendFileByUrlWithSource(ctx.Message, "https://thisartworkdoesnotexist.com/");
+            public async Task GenerateArtCommand(CommandContext ctx) => await SendFileByUrlWithSource(ctx.Message, "https://thisartworkdoesnotexist.com/");
         }
 
         [Group("db"), Description("Команды для работы с базой данных.")]
@@ -138,19 +155,19 @@ namespace Un1ver5e.Bot
                 await ctx.RespondAsync($"База данных содержит {dbSizeBytes} байт данных. ({dbSizeBytes / 1_048_576} MBs)");
             }
 
-            [Command("sqlnq"), RequireOwner()]
+            [Command("sqlnq"), RequireOwner]
             public async Task SqlNonQueryCommand(CommandContext ctx, [RemainingText()] string query)
             {
                 await ctx.RespondAsync(Database.ExecuteSqlNonQuery(query).AsCodeBlock());
             }
 
-            [Command("sqls"), RequireOwner()]
+            [Command("sqls"), RequireOwner]
             public async Task SqlScalarCommand(CommandContext ctx, [RemainingText()] string query)
             {
                 await ctx.RespondAsync(Database.ExecuteSqlScalar(query).AsCodeBlock());
             }
 
-            [Command("get"), Aliases("backup"), RequireOwner(), RequireDirectMessage()]
+            [Command("get"), Aliases("backup"), RequireOwner, RequireDirectMessage()]
             public async Task GetDatabaseBackupCommand(CommandContext ctx)
             {
                 FileStream dbfs = Database.GetDatabaseBackup();
@@ -166,7 +183,7 @@ namespace Un1ver5e.Bot
         public class FeedCommands : BaseCommandModule
         {
             [GroupCommand(), Description("Пишет данное сообщение в ленты."),
-                RequireOwner()]
+                RequireOwner]
             public async Task Broadcast(CommandContext ctx, [RemainingText(), Description("Сообщение")] string message)
             {
                 await Feeds.SendMessageToFeeds(ctx.Message.Author, message);
@@ -192,22 +209,22 @@ namespace Un1ver5e.Bot
         [Group("logs"), Description("Команды для работы с логами.")]
         public class LogsCommands : BaseCommandModule
         {
-            [Command("show"), Aliases("get"), RequireOwner()]
+            [Command("show"), Aliases("get"), RequireOwner]
             public async Task GetLogs(CommandContext ctx)
             {
-                using (var stream = File.Open($"{Statics.AppFolderPath}/logs/latest.log", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var stream = File.Open($"{Statics.AppPath}/logs/latest.log", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
                     await ctx.RespondAsync(new DiscordMessageBuilder().WithFile(stream.Name, stream));
                 }
             }
 
-            [Command("drop"), Aliases("clear"), RequireOwner()]
+            [Command("drop"), Aliases("clear"), RequireOwner]
             public async Task ClearLogs(CommandContext ctx)
             {
                 Logging.ClearLogs();
             }
 
-            [Command("setlevel"), RequireOwner()]
+            [Command("setlevel"), RequireOwner]
             public async Task SetLogLevel(CommandContext ctx, string level)
             {
                 Serilog.Events.LogEventLevel actualLevel = level.ToLower() switch
@@ -247,22 +264,7 @@ namespace Un1ver5e.Bot
             await ctx.RespondAsync(deb);
         }
 
-        [Command("whyerror"), Aliases("why", "details"), Description("Дает подробную информацию о последней ошибке.")]
-        public async Task WhyError(CommandContext ctx)
-        {
-            Exception ex = Features.ErrorResponds.GetException(ctx.User.Id);
-
-            InteractivityExtension interactivity = Program.DiscordClient.GetExtension<InteractivityExtension>();
-
-            await interactivity.SendPaginatedMessageAsync(
-                ctx.Channel,
-                ctx.User,
-                interactivity.GeneratePagesInEmbed($"[{ex.Message}]\n>>{ex.StackTrace}>>", DSharpPlus.Interactivity.Enums.SplitType.Character, new DiscordEmbedBuilder(Statics.EmbedTemplate))
-                );
-        }
-
-
-        [Command("shutdown"), RequireOwner()]
+        [Command("shutdown"), RequireOwner]
         public async Task Shutdown(CommandContext ctx, [RemainingText()] string message)
         {
             if (!await CommandExtensions.GetConfirmation(ctx)) return;
@@ -271,7 +273,11 @@ namespace Un1ver5e.Bot
             Environment.Exit(0);
         }
 
-        
+        [Command("test"), RequireOwner]
+        public async Task Test(CommandContext ctx, [RemainingText()] string message)
+        {
+            await ctx.RespondAsync("lorem ipsum");
+        }
     }
 
     public static class CommandExtensions

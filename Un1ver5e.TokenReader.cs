@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Un1ver5e.Bot
+﻿namespace Un1ver5e.Bot
 {
     public static class TokenReader
     {
@@ -15,12 +9,12 @@ namespace Un1ver5e.Bot
         public static string GetToken()
         {
 #if DEBUG
-            string path = "./.token_debug.txt";
+            string path = $"{Statics.DataFolderPath}/.token_debug.txt";
 #else
-            string path = "./.token_release.txt";
+            string path = $"{Statics.DataFolderPath}/.token_release.txt";
 #endif
             return File.ReadAllText(path);
         }
-        
+
     }
 }

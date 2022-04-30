@@ -6,6 +6,10 @@
 # Database files
 *.db3
 
+# token files
+
+.token_*.txt
+
 # User-specific files
 *.rsuser
 *.suo
@@ -400,3 +404,5 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 *.db3
+/Data/PrE-201.json
+/generate_data_folder_hardlinks.bat

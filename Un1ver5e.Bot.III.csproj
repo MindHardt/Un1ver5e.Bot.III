@@ -8,9 +8,10 @@
     <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.2.0-nightly-01113" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.2.0-nightly-01113" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.2.0-nightly-01113" />
+    <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01125" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.3.0-nightly-01125" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.3.0-nightly-01125" />
+    <PackageReference Include="DSharpPlus.SlashCommands" Version="4.3.0-nightly-01125" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.0-preview.3.22175.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.0" />
     <PackageReference Include="Serilog" Version="2.11.0-dev-01380" />
