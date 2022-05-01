@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
+using Npgsql;
 using System.Data;
 
 namespace Un1ver5e.Bot
@@ -6,7 +7,7 @@ namespace Un1ver5e.Bot
     /// <summary>
     /// Allows accessing the SQLite database for retrieving and inserting some low-level data.
     /// </summary>
-    public static class Database
+    public static class SQLiteDatabase
     {
         private static readonly string _path = Statics.DataFolderPath;
         private static SqliteConnection GetNewConnection() => new($"DataSource = {_path}/DB.db3");
@@ -236,5 +237,45 @@ namespace Un1ver5e.Bot
         public static string AsISO8601(this DateTime datetime) => datetime.ToString("O");
 
 
+    }
+
+    public static class PSQLDatabase
+    {
+        private readonly static string _connString =
+            "Host=balarama.db.elephantsql.com;" +
+            "Username=pcnyawpn;" +
+            "Password=eNuTlM2eCJrG-qTnYw2hfNhrzIGJYczx;" +
+            "Database=pcnyawpn";
+
+        private static NpgsqlConnection GetConnection()
+        {
+            var con = new NpgsqlConnection(_connString);
+            con.Open();
+            return con;
+        }
+
+        public static void Test(TextReader tr)
+        {
+            using (NpgsqlConnection con = GetConnection())
+            {
+                int n = 1;
+                new NpgsqlCommand("DELETE FROM public.splashes WHERE TRUE", con).ExecuteNonQuery();
+                for (string? splash = tr.ReadLine(); splash != null; splash = tr.ReadLine())
+                {
+                    try
+                    {
+                        NpgsqlCommand command = new()
+                        {
+                            Connection = con,
+                            CommandText =
+                        $"INSERT INTO public.splashes(splash)VALUES('{splash}');"
+                        };
+                        command.ExecuteNonQuery();
+                        Console.WriteLine(n++);
+                    }
+                    catch (Exception) { Console.WriteLine(n++ + "err"); }
+                }
+            }
+        }
     }
 }

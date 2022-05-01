@@ -8,12 +8,16 @@
     <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="generate_data_folder_hardlinks.bat" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01125" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.3.0-nightly-01125" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.3.0-nightly-01125" />
     <PackageReference Include="DSharpPlus.SlashCommands" Version="4.3.0-nightly-01125" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.0-preview.3.22175.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.0" />
+    <PackageReference Include="Npgsql" Version="7.0.0-preview.3" />
     <PackageReference Include="Serilog" Version="2.11.0-dev-01380" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.1-dev-10301" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.2-dev-00890" />

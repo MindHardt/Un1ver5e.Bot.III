@@ -34,7 +34,7 @@ namespace Un1ver5e.Bot
             //Startup
             Logging.ConfigureLogs();
 
-            string splash = Database.GetSplash();
+            string splash = SQLiteDatabase.GetSplash();
 
             Log.Warning($"Session started >> {splash}");
 

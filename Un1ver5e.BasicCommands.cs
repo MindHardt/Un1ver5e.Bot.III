@@ -11,7 +11,7 @@ namespace Un1ver5e.Bot
     /// </summary>
     public class BasicCommands : BaseCommandModule
     {
-        public Random Random { private get; set; } = System.Random.Shared;
+        public Random Random { private get; set; } = Random.Shared;
 
         [Command("avatar"), Description("Выдает ссылку на аватар нужного юзера."),
             RequireGuild()]
@@ -64,7 +64,7 @@ namespace Un1ver5e.Bot
                 ":ten: 10/10"
             };
 
-            string rateMessage = rateOptions.GetRandomElement();
+            string rateMessage = rateOptions.GetRandomElement(new Random((int)ctx.Message.Id));
 
             await ctx.Message.ReferencedMessage.RespondAsync(new DiscordEmbedBuilder(Statics.EmbedTemplate)
                 .AddField("Экспертная оценка от бота :sunglasses: ", rateMessage)
@@ -150,7 +150,7 @@ namespace Un1ver5e.Bot
             [GroupCommand()]
             public async Task StatusCommand(CommandContext ctx)
             {
-                long dbSizeBytes = Database.GetDatabaseBackup().Length;
+                long dbSizeBytes = SQLiteDatabase.GetDatabaseBackup().Length;
 
                 await ctx.RespondAsync($"База данных содержит {dbSizeBytes} байт данных. ({dbSizeBytes / 1_048_576} MBs)");
             }
@@ -158,19 +158,19 @@ namespace Un1ver5e.Bot
             [Command("sqlnq"), RequireOwner]
             public async Task SqlNonQueryCommand(CommandContext ctx, [RemainingText()] string query)
             {
-                await ctx.RespondAsync(Database.ExecuteSqlNonQuery(query).AsCodeBlock());
+                await ctx.RespondAsync(SQLiteDatabase.ExecuteSqlNonQuery(query).AsCodeBlock());
             }
 
             [Command("sqls"), RequireOwner]
             public async Task SqlScalarCommand(CommandContext ctx, [RemainingText()] string query)
             {
-                await ctx.RespondAsync(Database.ExecuteSqlScalar(query).AsCodeBlock());
+                await ctx.RespondAsync(SQLiteDatabase.ExecuteSqlScalar(query).AsCodeBlock());
             }
 
             [Command("get"), Aliases("backup"), RequireOwner, RequireDirectMessage()]
             public async Task GetDatabaseBackupCommand(CommandContext ctx)
             {
-                FileStream dbfs = Database.GetDatabaseBackup();
+                FileStream dbfs = SQLiteDatabase.GetDatabaseBackup();
 
                 await ctx.RespondAsync(new DiscordMessageBuilder().WithFile(
                     $"MO_Backup_{DateTime.Now}.db3", dbfs));
