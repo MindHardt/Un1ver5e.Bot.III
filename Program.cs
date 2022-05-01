@@ -34,7 +34,7 @@ namespace Un1ver5e.Bot
             //Startup
             Logging.ConfigureLogs();
 
-            string splash = SQLiteDatabase.GetSplash();
+            string splash = PSQLDatabase.GetSplash();
 
             Log.Warning($"Session started >> {splash}");
 
@@ -107,8 +107,10 @@ namespace Un1ver5e.Bot
 
             SlashCommandsExtension slash = DiscordClient.UseSlashCommands();
 
-            slash.RegisterCommands<SlashCommands>(956094613536505866);
-            slash.RegisterCommands<SlashCommands>(751088089463521322);
+            //slash.RegisterCommands<SlashCommands>(956094613536505866);
+            //slash.RegisterCommands<SlashCommands>(751088089463521322);
+
+            //Log.Information("Slashies registered.");
 
             //slash.RegisterCommands<EmptyCommands>(956094613536505866);
             //slash.RegisterCommands<EmptyCommands>(751088089463521322);

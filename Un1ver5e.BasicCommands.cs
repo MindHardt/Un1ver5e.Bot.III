@@ -144,68 +144,6 @@ namespace Un1ver5e.Bot
             public async Task GenerateArtCommand(CommandContext ctx) => await SendFileByUrlWithSource(ctx.Message, "https://thisartworkdoesnotexist.com/");
         }
 
-        [Group("db"), Description("Команды для работы с базой данных.")]
-        public class DatabaseCommand : BaseCommandModule
-        {
-            [GroupCommand()]
-            public async Task StatusCommand(CommandContext ctx)
-            {
-                long dbSizeBytes = SQLiteDatabase.GetDatabaseBackup().Length;
-
-                await ctx.RespondAsync($"База данных содержит {dbSizeBytes} байт данных. ({dbSizeBytes / 1_048_576} MBs)");
-            }
-
-            [Command("sqlnq"), RequireOwner]
-            public async Task SqlNonQueryCommand(CommandContext ctx, [RemainingText()] string query)
-            {
-                await ctx.RespondAsync(SQLiteDatabase.ExecuteSqlNonQuery(query).AsCodeBlock());
-            }
-
-            [Command("sqls"), RequireOwner]
-            public async Task SqlScalarCommand(CommandContext ctx, [RemainingText()] string query)
-            {
-                await ctx.RespondAsync(SQLiteDatabase.ExecuteSqlScalar(query).AsCodeBlock());
-            }
-
-            [Command("get"), Aliases("backup"), RequireOwner, RequireDirectMessage()]
-            public async Task GetDatabaseBackupCommand(CommandContext ctx)
-            {
-                FileStream dbfs = SQLiteDatabase.GetDatabaseBackup();
-
-                await ctx.RespondAsync(new DiscordMessageBuilder().WithFile(
-                    $"MO_Backup_{DateTime.Now}.db3", dbfs));
-
-                dbfs.Dispose();
-            }
-        }
-
-        [Group("feed"), Description("Команды для работы с \"лентами\".")]
-        public class FeedCommands : BaseCommandModule
-        {
-            [GroupCommand(), Description("Пишет данное сообщение в ленты."),
-                RequireOwner]
-            public async Task Broadcast(CommandContext ctx, [RemainingText(), Description("Сообщение")] string message)
-            {
-                await Feeds.SendMessageToFeeds(ctx.Message.Author, message);
-            }
-
-            [Command("enable"), Description("Назначает данный канал лентой."),
-                RequirePermissions(DSharpPlus.Permissions.Administrator)]
-            public async Task Enablefeed(CommandContext ctx)
-            {
-                Feeds.EnableFeed(ctx.Channel);
-                await ctx.RespondAsync(new DiscordEmbedBuilder(Statics.EmbedTemplate).WithDescription($"Назначил {ctx.Channel.Mention} лентой."));
-            }
-
-            [Command("disable"), Description("Убирает данный канал из списка лент."),
-                RequirePermissions(DSharpPlus.Permissions.Administrator)]
-            public async Task Disablefeed(CommandContext ctx)
-            {
-                Feeds.DisableFeed(ctx.Channel);
-                await ctx.RespondAsync(new DiscordEmbedBuilder(Statics.EmbedTemplate).WithDescription($"Убрал {ctx.Channel.Mention} из списка лент."));
-            }
-        }
-
         [Group("logs"), Description("Команды для работы с логами.")]
         public class LogsCommands : BaseCommandModule
         {
@@ -268,7 +206,6 @@ namespace Un1ver5e.Bot
         public async Task Shutdown(CommandContext ctx, [RemainingText()] string message)
         {
             if (!await CommandExtensions.GetConfirmation(ctx)) return;
-            await Feeds.SendMessageToFeeds(Program.DiscordClient.CurrentUser, $"Выключаюсь по причине:\n> {message}");
             await Program.DiscordClient.DisconnectAsync();
             Environment.Exit(0);
         }
