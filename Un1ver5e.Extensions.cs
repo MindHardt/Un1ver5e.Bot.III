@@ -11,7 +11,8 @@ namespace Un1ver5e.Bot
         /// <typeparam name="T"></typeparam>
         /// <param name="collection">The original collection.</param>
         /// <returns></returns>
-        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> collection) => collection.OrderBy((e) => Random.Shared.Next());
+        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> collection) => 
+            collection.OrderBy((e) => Random.Shared.Next());
 
         /// <summary>
         /// Shuffles the collection, making it random-ordered using <paramref name="random"/> as a randomizer. This returns a lazy collection.
@@ -20,7 +21,8 @@ namespace Un1ver5e.Bot
         /// <param name="collection">The original collection.</param>
         /// <param name="random">The used randomizer.</param>
         /// <returns></returns>
-        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> collection, Random random) => collection.OrderBy((e) => random.Next());
+        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> collection, Random random) => 
+            collection.OrderBy((e) => random.Next());
 
         /// <summary>
         /// Gets random element of a <paramref name="collection"/> using <see cref="Random.Shared"/> as a randomizer
@@ -28,7 +30,8 @@ namespace Un1ver5e.Bot
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
         /// <returns></returns>
-        public static T GetRandomElement<T>(this IList<T> collection) => collection.ElementAt(Random.Shared.Next(0, collection.Count));
+        public static T GetRandomElement<T>(this IList<T> collection) =>
+            collection.Shuffle().First();
 
         /// <summary>
         /// Gets random element of a <paramref name="collection"/> using <paramref name="random"/> as a randomizer
@@ -37,7 +40,8 @@ namespace Un1ver5e.Bot
         /// <param name="collection"></param>
         /// <param name="random">The used randomizer.</param>
         /// <returns></returns>
-        public static T GetRandomElement<T>(this IList<T> collection, Random random) => collection.ElementAt(random.Next(0, collection.Count));
+        public static T GetRandomElement<T>(this IList<T> collection, Random random) =>
+            collection.Shuffle(random).First();
 
         /// <summary>
         /// Formats string as a Discord Codeblock
