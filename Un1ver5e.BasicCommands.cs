@@ -3,6 +3,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using System.Diagnostics;
+using System.Text;
 
 namespace Un1ver5e.Bot
 {
@@ -78,12 +79,12 @@ namespace Un1ver5e.Bot
             [Command("gray"), RequireOwner]
             public async Task GrayEncryptionCommand(CommandContext ctx, [RemainingText] string msg)
             {
+                if (string.IsNullOrWhiteSpace(msg))
+                {
+                    if (ctx.Message.ReferencedMessage == null) throw new ArgumentNullException("Не указан текст для шифрования");
+                    msg = ctx.Message.ReferencedMessage.Content;
+                }
                 await ctx.RespondAsync(GrayEncrypt(msg));
-            }
-            [Command("gray"), RequireOwner, RequireReferencedMessage]
-            public async Task GrayEncryptionCommand(CommandContext ctx)
-            {
-                await ctx.RespondAsync(GrayEncrypt(ctx.Message.ReferencedMessage.Content));
             }
             private string GrayEncrypt(string msg)
             {
@@ -95,15 +96,14 @@ namespace Un1ver5e.Bot
 
             //Язык Кицуне
             [Command("kit"), RequireOwner]
-            public async Task KitEncryptionCommand(CommandContext ctx, params string[] msg)
+            public async Task KitEncryptionCommand(CommandContext ctx, [RemainingText] string msg)
             {
-                await ctx.RespondAsync(KitEncrypt(string.Join(' ', msg)));
-            }
-
-            [Command("kit"), RequireOwner, RequireReferencedMessage]
-            public async Task KitEncryptionCommand(CommandContext ctx)
-            {
-                await ctx.RespondAsync(KitEncrypt(ctx.Message.ReferencedMessage.Content));
+                if (string.IsNullOrWhiteSpace(msg))
+                {
+                    if (ctx.Message.ReferencedMessage == null) throw new ArgumentNullException("Не указан текст для шифрования");
+                    msg = ctx.Message.ReferencedMessage.Content;
+                }
+                await ctx.RespondAsync(KitEncrypt(msg));
             }
             private string KitEncrypt(string msg)
             {
@@ -115,6 +115,23 @@ namespace Un1ver5e.Bot
                     .Select(c => c == ' ' ? " " : replacements[c - 'а']));
             }
 
+            //Шифр Base64
+            [Command("b64"), RequireOwner]
+            public async Task Base64EncryptionCommand(CommandContext ctx, [RemainingText] string msg)
+            {
+                if (string.IsNullOrWhiteSpace(msg))
+                {
+                    if (ctx.Message.ReferencedMessage == null) throw new ArgumentNullException("Не указан текст для шифрования");
+                    msg = ctx.Message.ReferencedMessage.Content;
+                }
+                await ctx.RespondAsync(Base64Encrypt(msg));
+            }
+            private string Base64Encrypt(string msg)
+            {
+                byte[] msgAsBytes = Encoding.Unicode.GetBytes(msg);
+
+                return Convert.ToBase64String(msgAsBytes);
+            }
         }
 
         [Group("generate"), Description("Команды для генерации чего-то."), Aliases("g")]
