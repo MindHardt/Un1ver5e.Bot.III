@@ -11,7 +11,8 @@ namespace Un1ver5e.Bot
 {
     public class ScheduleSet
     {
-        public static ScheduleSet PrE201 => FromFile($"{Statics.DataFolderPath}/PrE-201.json");
+        private static int weekOffset = 1;
+        public static ScheduleSet PrE201 => FromFile($"{Statics.DataFolderPath}/Schedules/PrE-201.json");
 
         [JsonPropertyName("FirstWeek")]
         public ScheduleWeek? First { get; set; } = new();
@@ -22,9 +23,13 @@ namespace Un1ver5e.Bot
         public static ScheduleSet FromFile(string path) => JsonSerializer.Deserialize<ScheduleSet>(File.ReadAllText(path, Encoding.Unicode), Statics.JsonSerializerOptions) ?? throw new ArgumentNullException();
         public void SaveAs(string path) => File.WriteAllText(path, JsonSerializer.Serialize(this, Statics.JsonSerializerOptions), Encoding.Unicode);
 
+        public static void SwitchOffset()
+        {
+            weekOffset = weekOffset == 0 ? 1 : 0;
+        }
         public string GetSchedule(DateTime date)
         {
-            ScheduleWeek sw = (int)CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(date) % 2 == 0 ? First! : Second!;
+            ScheduleWeek sw = (int)CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(date) % 2 == weekOffset ? First! : Second!;
 
             return date.DayOfWeek switch
             {

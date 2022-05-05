@@ -32,6 +32,14 @@ namespace Un1ver5e.Bot
             await ctx.CreateResponseAsync(dirb);
         }
 
+        [SlashCommand("switchweek", "Поменять неделю.")]
+        public async Task SwitchWeek(InteractionContext ctx)
+        {
+            ScheduleSet.SwitchOffset();
+
+            await ctx.CreateResponseAsync("Успешно поменял неделю!");
+        }
+
     }
 
 }
