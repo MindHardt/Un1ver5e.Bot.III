@@ -62,7 +62,11 @@ namespace Un1ver5e.Bot
                 ":seven: 7/10",
                 ":eight: 8/10",
                 ":nine: 9/10",
-                ":ten: 10/10"
+                ":ten: 10/10",
+                ":knife: РЕЗНЯ",
+                $"{DiscordEmoji.FromGuildEmote(ctx.Client, 971147037124984902)} Нет.",
+                ":radioactive: Бомба!",
+                ":exclamation: !!!"
             };
 
             string rateMessage = rateOptions.GetRandomElement(new Random((int)ctx.Message.Id));
@@ -230,7 +234,23 @@ namespace Un1ver5e.Bot
         [Command("test"), RequireOwner]
         public async Task Test(CommandContext ctx, [RemainingText()] string message)
         {
-            await ctx.RespondAsync("lorem ipsum");
+            await Task.Run(async () =>
+            {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+
+                Stream pic = Drawing.CreateLetter(message);
+
+                sw.Stop();
+
+                pic.Position = 0;
+
+                DiscordMessageBuilder dmb = new DiscordMessageBuilder()
+                .WithFile("foo.jpg", pic)
+                .WithContent(sw.Elapsed.ToString());
+
+                await ctx.RespondAsync(dmb);
+            });
         }
     }
 
