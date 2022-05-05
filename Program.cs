@@ -87,7 +87,9 @@ namespace Un1ver5e.Bot
                             .WithContent("Текст вашей ошибки:")
                             .WithFile("error.txt", ms);
 
-                        await e.Context.RespondAsync(dmb);
+                        DiscordMessage respond = await e.Context.RespondAsync(dmb);
+
+                        await respond.ScheduleDestructionAsync();
                     }
                 });
             };
@@ -107,12 +109,12 @@ namespace Un1ver5e.Bot
 
             SlashCommandsExtension slash = DiscordClient.UseSlashCommands();
 
-#if RELEASE
+//#if RELEASE
             slash.RegisterCommands<SlashCommands>(956094613536505866);
             slash.RegisterCommands<SlashCommands>(751088089463521322);
 
             Log.Information("Slashies registered.");
-#endif
+//#endif
             //slash.RegisterCommands<EmptyCommands>(956094613536505866);
             //slash.RegisterCommands<EmptyCommands>(751088089463521322);
 

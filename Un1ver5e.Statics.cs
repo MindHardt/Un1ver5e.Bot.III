@@ -23,6 +23,8 @@ namespace Un1ver5e.Bot
         /// </summary>
         public static readonly string DataFolderPath = AppPath + "/Data";
 
+        public static TimeSpan MessageDestructionTime { get; set; } = TimeSpan.FromSeconds(30);
+
         /// <summary>
         /// The default-colored embed, using this is recommended.
         /// </summary>

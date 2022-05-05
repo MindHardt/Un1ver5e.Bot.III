@@ -57,5 +57,19 @@ namespace Un1ver5e.Bot
         /// <param name="client"></param>
         /// <returns></returns>
         public static bool IsOwnerOf(this DiscordUser user, DiscordClient client) => client.CurrentApplication.Owners.Contains(user);
+
+        /// <summary>
+        /// Initiates this <see cref="DiscordMessage"/>'s destruction. The period between scheduling and eventually deleting the message is regulated by <see cref="Statics.MessageDestructionTime"/>
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public static async Task ScheduleDestructionAsync(this DiscordMessage msg)
+        {
+            await msg.CreateReactionAsync(Statics.QuickResponds.SelfDestruct);
+
+            await Task.Delay(Statics.MessageDestructionTime);
+
+            await msg.DeleteAsync();
+        }
     }
 }
