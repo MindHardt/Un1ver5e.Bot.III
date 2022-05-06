@@ -17,7 +17,7 @@ namespace Un1ver5e.Bot
             [Choice("завтра", 1)]
             [Option("day", "На какой день?")]long delay) 
         {
-            DateTimeOffset date = DateTimeOffset.Now.AddDays(delay);
+            DateTimeOffset date = DateTime.Now.AddDays(delay);
             ScheduleSet schset = ScheduleSet.PrE201;
             string schedule = schset.GetSchedule(date.DateTime);
 
