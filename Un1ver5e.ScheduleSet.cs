@@ -29,7 +29,7 @@ namespace Un1ver5e.Bot
         }
         public string GetSchedule(DateTime date)
         {
-            ScheduleWeek sw = (int)CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(date) % 2 == weekOffset ? First! : Second!;
+            ScheduleWeek sw = CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(date, CalendarWeekRule.FirstDay, DayOfWeek.Monday) % 2 == weekOffset ? First! : Second!;
 
             return date.DayOfWeek switch
             {
