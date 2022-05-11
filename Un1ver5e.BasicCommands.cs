@@ -271,18 +271,4 @@ namespace Un1ver5e.Bot
             return !respond.TimedOut;
         }
     }
-
-    /// <summary>
-    /// Defines that a command is only usable if the message contains a referenced message.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class RequireReferencedMessageAttribute : CheckBaseAttribute
-    {
-        public RequireReferencedMessageAttribute() { }
-
-        public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
-        {
-            return Task.FromResult(help || ctx.Message.ReferencedMessage != null);
-        }
-    }
 }
