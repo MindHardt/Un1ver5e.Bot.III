@@ -9,7 +9,7 @@ namespace Un1ver5e.Bot.SlashCommands
 
     }
 
-    public class SlashCommands : ApplicationCommandModule
+    public class SlashCommandsModule : ApplicationCommandModule
     {
         [SlashCommand("schedule", "Ура автоматическое расписание!")]
         public async Task Schedule(InteractionContext ctx,
