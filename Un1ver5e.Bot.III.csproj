@@ -11,21 +11,16 @@
     <None Remove="generate_data_folder_hardlinks.bat" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01128" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.3.0-nightly-01128" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.3.0-nightly-01128" />
-    <PackageReference Include="DSharpPlus.SlashCommands" Version="4.3.0-nightly-01128" />
+    <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01127" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.3.0-nightly-01127" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.3.0-nightly-01127" />
+    <PackageReference Include="DSharpPlus.SlashCommands" Version="4.3.0-nightly-01127" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
     <PackageReference Include="Npgsql" Version="7.0.0-preview.3" />
-    <PackageReference Include="Serilog" Version="2.11.1-dev-01397" />
+    <PackageReference Include="Serilog" Version="2.11.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.1-dev-10301" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.2-dev-00890" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00947" />
-    <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta16" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta14" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Un1ver5e.BoardGames.cs\Un1ver5e.BoardGames.csproj" />
   </ItemGroup>
 </Project>

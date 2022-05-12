@@ -36,8 +36,6 @@ namespace Un1ver5e.Bot
             //Startup
             Logging.ConfigureLogs();
 
-            BoardGames.Core.Dice.CacheCommonDice();
-
             string splash = SplashReader.GetSplash();
 
             Log.Warning($"Session started >> {splash}");
@@ -86,7 +84,7 @@ namespace Un1ver5e.Bot
                     {
                         string exceptionMessage = e.Exception.ToString();
 
-                        MemoryStream ms = new(Encoding.UTF8.GetBytes(exceptionMessage));
+                        MemoryStream ms = new(Encoding.Unicode.GetBytes(exceptionMessage));
 
                         DiscordMessageBuilder dmb = new DiscordMessageBuilder()
                             .WithContent("Текст вашей ошибки:")
@@ -94,7 +92,7 @@ namespace Un1ver5e.Bot
 
                         DiscordMessage respond = await e.Context.RespondAsync(dmb);
 
-                        await respond.ScheduleDestructionAsync(e.Context.User);
+                        await respond.ScheduleDestructionAsync();
                     }
                 });
             };
