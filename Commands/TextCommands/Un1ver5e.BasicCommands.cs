@@ -3,6 +3,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Un1ver5e.Bot.TextCommands
@@ -225,6 +226,31 @@ namespace Un1ver5e.Bot.TextCommands
             if (!await CommandExtensions.GetConfirmation(ctx)) return;
             await Program.DiscordClient.DisconnectAsync();
             Environment.Exit(0);
+        }
+
+        [Command("neofetch"), RequireOwner]
+        public async Task Neofetch(CommandContext ctx)
+        {
+            bool isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+
+            ProcessStartInfo psi = new()
+            {
+                FileName = isLinux ? "/bin/bash" : "cmd",
+                Arguments = "neofetch",
+                RedirectStandardOutput = true
+            };
+
+            Process proc = new Process()
+            {
+                StartInfo = psi
+            };
+
+            proc.Start();
+            await proc.WaitForExitAsync();
+
+            string respond = proc.StandardOutput.ReadToEnd();
+
+            await ctx.RespondAsync(respond);
         }
 
         [Command("test"), RequireOwner]
