@@ -116,8 +116,8 @@ namespace Un1ver5e.Bot
             SlashCommandsExtension slash = DiscordClient.UseSlashCommands();
 
 #if RELEASE
-            slash.RegisterCommands<SlashCommands>(956094613536505866);
-            slash.RegisterCommands<SlashCommands>(751088089463521322);
+            slash.RegisterCommands<SlashCommandsModule>(956094613536505866);
+            slash.RegisterCommands<SlashCommandsModule>(751088089463521322);
 
             Log.Information("Slashies registered.");
 #else
