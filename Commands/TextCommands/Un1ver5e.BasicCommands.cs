@@ -37,7 +37,7 @@ namespace Un1ver5e.Bot.TextCommands
         }
 
         [Command("rate"), Description("Оценивает сообщение, на которое вызван ответ."),
-            RequireReferencedMessage()]
+            RequireReferencedMessage]
         public async Task RateCommand(CommandContext ctx)
         {
             string[] rateOptions =
@@ -230,23 +230,23 @@ namespace Un1ver5e.Bot.TextCommands
         [Command("test"), RequireOwner]
         public async Task Test(CommandContext ctx, [RemainingText()] string message)
         {
-            await Task.Run(async () =>
-            {
-                Stopwatch sw = new();
-                sw.Start();
+            //await Task.Run(async () =>
+            //{
+            //    Stopwatch sw = new();
+            //    sw.Start();
 
-                Stream pic = Drawing.CreateLetter(message);
+            //    Stream pic = Drawing.CreateLetter(message);
 
-                sw.Stop();
+            //    sw.Stop();
 
-                pic.Position = 0;
+            //    pic.Position = 0;
 
-                DiscordMessageBuilder dmb = new DiscordMessageBuilder()
-                .WithFile("foo.jpg", pic)
-                .WithContent(sw.Elapsed.ToString());
+            //    DiscordMessageBuilder dmb = new DiscordMessageBuilder()
+            //    .WithFile("foo.jpg", pic)
+            //    .WithContent(sw.Elapsed.ToString());
 
-                await ctx.RespondAsync(dmb);
-            });
+            //    await ctx.RespondAsync(dmb);
+            //});
         }
     }
 
