@@ -7,6 +7,7 @@ using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System.Text;
+using Un1ver5e.BoardGames.Core;
 using Un1ver5e.Bot.SlashCommands;
 using Un1ver5e.Bot.TextCommands;
 
@@ -35,6 +36,8 @@ namespace Un1ver5e.Bot
         {
             //Startup
             Logging.ConfigureLogs();
+
+            Dice.CacheCommonDice();
 
             string splash = SplashReader.GetSplash();
 

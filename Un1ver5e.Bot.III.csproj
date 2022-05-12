@@ -23,4 +23,7 @@
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.1-dev-00947" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Un1ver5e.BoardGames.cs\Un1ver5e.BoardGames.csproj" />
+  </ItemGroup>
 </Project>
