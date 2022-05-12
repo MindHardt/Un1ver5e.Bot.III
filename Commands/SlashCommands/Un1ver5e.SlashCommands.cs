@@ -2,7 +2,7 @@
 using DSharpPlus.SlashCommands;
 using System.Globalization;
 
-namespace Un1ver5e.Bot
+namespace Un1ver5e.Bot.SlashCommands
 {
     public class EmptyCommands : ApplicationCommandModule
     {

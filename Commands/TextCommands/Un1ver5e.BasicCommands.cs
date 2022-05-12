@@ -5,7 +5,7 @@ using DSharpPlus.Interactivity;
 using System.Diagnostics;
 using System.Text;
 
-namespace Un1ver5e.Bot
+namespace Un1ver5e.Bot.TextCommands
 {
     /// <summary>
     /// The basic command module, contains simple commands.
@@ -85,7 +85,7 @@ namespace Un1ver5e.Bot
             {
                 if (string.IsNullOrWhiteSpace(msg))
                 {
-                    if (ctx.Message.ReferencedMessage == null) throw new ArgumentNullException("Не указан текст для шифрования");
+                    if (ctx.Message.ReferencedMessage == null) throw new ArgumentNullException(nameof(msg), "Не указан текст для шифрования");
                     msg = ctx.Message.ReferencedMessage.Content;
                 }
                 await ctx.RespondAsync(GrayEncrypt(msg));
@@ -104,7 +104,7 @@ namespace Un1ver5e.Bot
             {
                 if (string.IsNullOrWhiteSpace(msg))
                 {
-                    if (ctx.Message.ReferencedMessage == null) throw new ArgumentNullException("Не указан текст для шифрования");
+                    if (ctx.Message.ReferencedMessage == null) throw new ArgumentNullException(nameof(msg), "Не указан текст для шифрования");
                     msg = ctx.Message.ReferencedMessage.Content;
                 }
                 await ctx.RespondAsync(KitEncrypt(msg));
@@ -125,7 +125,7 @@ namespace Un1ver5e.Bot
             {
                 if (string.IsNullOrWhiteSpace(msg))
                 {
-                    if (ctx.Message.ReferencedMessage == null) throw new ArgumentNullException("Не указан текст для шифрования");
+                    if (ctx.Message.ReferencedMessage == null) throw new ArgumentNullException(nameof(msg), "Не указан текст для шифрования");
                     msg = ctx.Message.ReferencedMessage.Content;
                 }
                 await ctx.RespondAsync(Base64Encrypt(msg));
@@ -143,13 +143,11 @@ namespace Un1ver5e.Bot
         {
             private async Task SendFileByUrlWithSource(DiscordMessage reference, string url)
             {
-                using (HttpClient client = new HttpClient())
-                {
-                    Stream pic = await client.GetStreamAsync(url);
-                    await reference.RespondAsync(new DiscordMessageBuilder()
-                        .WithFile($"{url}.jpg", pic)
-                        .WithContent($"||Источник: {url}||")); ;
-                }
+                using HttpClient client = new();
+                Stream pic = await client.GetStreamAsync(url);
+                await reference.RespondAsync(new DiscordMessageBuilder()
+                    .WithFile($"{url}.jpg", pic)
+                    .WithContent($"||Источник: {url}||")); ;
             }
 
             [Command("cat"), Description("Случайные несуществующие коты!")
@@ -171,10 +169,8 @@ namespace Un1ver5e.Bot
             [Command("show"), Aliases("get"), RequireOwner]
             public async Task GetLogs(CommandContext ctx)
             {
-                using (var stream = File.Open($"{Statics.AppPath}/logs/latest.log", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                {
-                    await ctx.RespondAsync(new DiscordMessageBuilder().WithFile(stream.Name, stream));
-                }
+                using var stream = File.Open($"{Statics.AppPath}/logs/latest.log", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                await ctx.RespondAsync(new DiscordMessageBuilder().WithFile(stream.Name, stream));
             }
 
             [Command("drop"), Aliases("clear"), RequireOwner]
@@ -224,7 +220,7 @@ namespace Un1ver5e.Bot
         }
 
         [Command("shutdown"), RequireOwner]
-        public async Task Shutdown(CommandContext ctx, [RemainingText()] string message)
+        public async Task Shutdown(CommandContext ctx)
         {
             if (!await CommandExtensions.GetConfirmation(ctx)) return;
             await Program.DiscordClient.DisconnectAsync();
@@ -236,7 +232,7 @@ namespace Un1ver5e.Bot
         {
             await Task.Run(async () =>
             {
-                Stopwatch sw = new Stopwatch();
+                Stopwatch sw = new();
                 sw.Start();
 
                 Stream pic = Drawing.CreateLetter(message);

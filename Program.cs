@@ -7,6 +7,8 @@ using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System.Text;
+using Un1ver5e.Bot.SlashCommands;
+using Un1ver5e.Bot.TextCommands;
 
 namespace Un1ver5e.Bot
 {
@@ -34,7 +36,7 @@ namespace Un1ver5e.Bot
             //Startup
             Logging.ConfigureLogs();
 
-            string splash = PSQLDatabase.GetSplash();
+            string splash = SplashReader.GetSplash();
 
             Log.Warning($"Session started >> {splash}");
 
@@ -81,7 +83,7 @@ namespace Un1ver5e.Bot
                     {
                         string exceptionMessage = e.Exception.ToString();
 
-                        MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(exceptionMessage));
+                        MemoryStream ms = new(Encoding.Unicode.GetBytes(exceptionMessage));
 
                         DiscordMessageBuilder dmb = new DiscordMessageBuilder()
                             .WithContent("Текст вашей ошибки:")
@@ -109,15 +111,16 @@ namespace Un1ver5e.Bot
 
             SlashCommandsExtension slash = DiscordClient.UseSlashCommands();
 
-//#if RELEASE
+#if RELEASE
             slash.RegisterCommands<SlashCommands>(956094613536505866);
             slash.RegisterCommands<SlashCommands>(751088089463521322);
 
             Log.Information("Slashies registered.");
-//#endif
-            //slash.RegisterCommands<EmptyCommands>(956094613536505866);
-            //slash.RegisterCommands<EmptyCommands>(751088089463521322);
-
+#else
+            slash.RegisterCommands<EmptyCommands>(956094613536505866);
+            slash.RegisterCommands<EmptyCommands>(751088089463521322);
+            Log.Information("Slashies emptied.");
+#endif
             await DiscordClient.ConnectAsync(new DiscordActivity(splash, ActivityType.Watching));
 
             Log.Information($"{DiscordClient.CurrentUser.Username} is here.");

@@ -23,15 +23,13 @@ namespace Un1ver5e.Bot
 
         public static string GetSplash()
         {
-            using (NpgsqlConnection con = GetOpenedConnection())
+            using NpgsqlConnection con = GetOpenedConnection();
+            NpgsqlCommand command = new()
             {
-                NpgsqlCommand command = new()
-                {
-                    Connection = con,
-                    CommandText = $"SELECT splash FROM splashes ORDER BY RANDOM() LIMIT 1"
-                };
-                return (string)command.ExecuteScalar()!;
-            }
+                Connection = con,
+                CommandText = $"SELECT splash FROM splashes ORDER BY RANDOM() LIMIT 1"
+            };
+            return (string)command.ExecuteScalar()!;
         }
     }
 }
