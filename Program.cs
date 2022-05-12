@@ -60,6 +60,7 @@ namespace Un1ver5e.Bot
             });
 
             cnext.RegisterCommands<BasicCommands>();
+            cnext.RegisterCommands<BoardGamesCommands>();
 
             cnext.CommandErrored += async (s, e) =>
             {
