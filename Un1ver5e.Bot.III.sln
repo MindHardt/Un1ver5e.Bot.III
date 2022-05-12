@@ -5,7 +5,9 @@ VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Un1ver5e.Bot.III", "Un1ver5e.Bot.III.csproj", "{487C00F1-1488-40B6-ADE9-0CE9B1D08CCF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Un1ver5e.DnD", "..\Un1ver5e.DnD\Un1ver5e.DnD.csproj", "{BEFEE000-B95D-4C6C-814B-01C5A84DE625}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Un1ver5e.DnD", "..\Un1ver5e.DnD\Un1ver5e.DnD.csproj", "{BEFEE000-B95D-4C6C-814B-01C5A84DE625}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Un1ver5e.BoardGames", "..\Un1ver5e.BoardGames.cs\Un1ver5e.BoardGames.csproj", "{69498029-7360-4D1D-9FC1-EFB72EB18F04}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{BEFEE000-B95D-4C6C-814B-01C5A84DE625}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEFEE000-B95D-4C6C-814B-01C5A84DE625}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BEFEE000-B95D-4C6C-814B-01C5A84DE625}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69498029-7360-4D1D-9FC1-EFB72EB18F04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69498029-7360-4D1D-9FC1-EFB72EB18F04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69498029-7360-4D1D-9FC1-EFB72EB18F04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69498029-7360-4D1D-9FC1-EFB72EB18F04}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

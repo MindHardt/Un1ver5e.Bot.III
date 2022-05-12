@@ -1,5 +1,6 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
 
 namespace Un1ver5e.Bot
 {
@@ -63,11 +64,14 @@ namespace Un1ver5e.Bot
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        public static async Task ScheduleDestructionAsync(this DiscordMessage msg)
+        public static async Task ScheduleDestructionAsync(this DiscordMessage msg, DiscordUser controller)
         {
             await msg.CreateReactionAsync(Statics.QuickResponds.SelfDestruct);
 
-            await Task.Delay(Statics.MessageDestructionTime);
+            InteractivityExtension inter = Program.DiscordClient.GetExtension<InteractivityExtension>();
+            DiscordEmoji emoji = Statics.QuickResponds.SelfDestruct;
+
+            await inter.WaitForReactionAsync(r => r.Emoji == emoji && r.User == controller, Statics.MessageDestructionTime);
 
             await msg.DeleteAsync();
         }
